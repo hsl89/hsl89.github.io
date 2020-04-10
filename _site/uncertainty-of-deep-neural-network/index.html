@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Uncertainty of Deep Neural Network – Tech Blog – </title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="
+  A homo sapien learns its environment by investigating objects that it is uncertain
+about. More successful homo sapiens are generally those who push themselves
+outside their comfort zone and navigate through unfamiliar circumstances. 
+Suppose deep learning models do in some sense mimic how human brain works, then can 
+we use the success story of those donquixotic apes to train our models? 
+In this post, let’s study the notion of model’s uncertainty and use it in our training
+process
+
+
+" />
+    <meta property="og:description" content="
+  A homo sapien learns its environment by investigating objects that it is uncertain
+about. More successful homo sapiens are generally those who push themselves
+outside their comfort zone and navigate through unfamiliar circumstances. 
+Suppose deep learning models do in some sense mimic how human brain works, then can 
+we use the success story of those donquixotic apes to train our models? 
+In this post, let’s study the notion of model’s uncertainty and use it in our training
+process
+
+
+" />
+    
+    <meta name="author" content="Tech Blog" />
+
+    
+    <meta property="og:title" content="Uncertainty of Deep Neural Network" />
+    <meta property="twitter:title" content="Uncertainty of Deep Neural Network" />
+    
+
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Tech Blog - " href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Tech Blog</a></h1>
+            <p class="site-description"></p>
+          </div>
+
+          <nav>
+            <!-- <a href="/">Blog</a> -->
+            <!-- <a href="/about">About</a> -->
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Uncertainty of Deep Neural Network</h1>
+    <p class="post-meta">
+
+      <time datetime="2020-04-08T00:00:00-07:00" itemprop="datePublished">
+        
+        Apr 8, 2020
+      </time>
+
+      <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+        by <span itemprop="name"></span>
+      </span>
+
+      <span>
+        
+      </span>
+      <!--
+      <span class="share-buttons">
+        <span class="share-button"><a class="twitter-share-button" href="https://twitter.com/share" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></span>
+
+        <span class="share-button"><span class="fb-like" data-href="/uncertainty-of-deep-neural-network/" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></span></span>
+      </span>
+      <div style="clear: both;"/>
+      -->
+
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <blockquote>
+  <p>A homo sapien learns its environment by investigating objects that it is uncertain
+about. More successful homo sapiens are generally those who push themselves
+outside their comfort zone and navigate through unfamiliar circumstances. 
+Suppose deep learning models do in some sense mimic how human brain works, then can 
+we use the success story of those donquixotic apes to train our models? 
+In this post, let’s study the notion of model’s uncertainty and use it in our training
+process</p>
+</blockquote>
+
+<!--more-->
+<p>In fact, quantify the notion of uncertainty and use it to select “difficult”
+samples to train the model is not a novel idea.
+The entire field of <em>active learning</em> is built on top of that. The idea of 
+active learning is illustrated in Fig.1</p>
+
+<p style="width: 100%; class=center"><img src="/assets/images/active-learning.png" alt="Active learning" /></p>
+
+<p><em>Fig. 1. Active learning</em></p>
+
+<p>Active learning is an iterative human-in-the-loop training process:
+one does not start with a fully labeled data set(in contrast to supervised learning),
+instead one starts with labeling a small fraction of the data 
+(pool $\mathcal{L}$ in Fig.1) and use it to 
+the model like in the supervised learning setup. After the model converges, it will
+be used to infer on the rest of unlabeled data (pool $\mathcal{U}$ in Fig.1) and we
+will calculate an uncertainty score for each unlabeled sample and select those 
+“most difficult” samples to be labeled by a human annotator and once the selected
+samples are labeled, we add those to the labeled training set and retrain the model
+with the enlarged training set. This iterative process continues until the model 
+reached the desired performance or we run out labeling budget.</p>
+
+<p>Uncertainty is the key factor determining which samples to be labeled in an active
+learning process. In this post, I will limit the scope to the deep neuron networks 
+for classification problems. Before we dive deeper, let me introduce some notations
+to be used latter</p>
+
+<h3 id="notations">Notations</h3>
+
+<table class="mbtablestyle">
+  <thead>
+    <tr>
+      <th>$f$:</th>
+      <th>deep neural network classifier</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>$w$:</td>
+      <td>weights of $f$</td>
+    </tr>
+    <tr>
+      <td>$D$:</td>
+      <td>training set</td>
+    </tr>
+    <tr>
+      <td>$\mathcal{C}$:</td>
+      <td>set of labels</td>
+    </tr>
+    <tr>
+      <td>$x$:</td>
+      <td>an unseen sample</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Let $f$ denote trained on $D$. At the inference time, the there are three commonly 
+used metric to characterize the uncertainty of $f$ on the unseen sample $x$.</p>
+
+<h4 id="confidence-level">Confidence level</h4>
+<p>Confidence level measures how confident the prediction $f(x)$ is, it is defined as</p>
+
+<script type="math/tex; mode=display">\text{max}(\{p(y=c|x, f) | c \in \mathcal{C}\}</script>
+
+<p>i.e. the highest class probability.</p>
+
+<h4 id="margin">Margin</h4>
+<p>Margin measures how certain the model thinks the sample $x$ belongs to one class vs the rest.
+It is defined as</p>
+
+<script type="math/tex; mode=display">\text{max}(\{p(y=c|x,f) - p(y=c^{\prime}|x, f) | c, c^{\prime} \in C\})</script>
+
+<h4 id="entropy">Entropy</h4>
+<p><a href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">Entropy</a> of the prediction $f(x)$
+is calculated as</p>
+
+<script type="math/tex; mode=display">H(f(x)) = \sum_{c\in \mathcal{C}} -p(y=c|x, f)\log (p(y=c|x, f))</script>
+
+<p>The term $-\log p(y=c|x, f) = \log \frac{1}{p(y=c|x,f)}$ is called 
+the <em>surprisal</em> of the event $p(y=c|x, f)$. 
+Intuitively, it measures how surprised the model is when the real 
+class label of $x$ is $c$. The smaller the probability $p(y=c|x, f)$ 
+the more surprised the model should be. Therefore, 
+$H(f(x))$ can be thought as expected surprisal 
+when the model sees the real label of $x$. So higher $H(f(x))$ means
+$f$ is less certain about $x$.</p>
+
+<p>Confidence level, margin and entropy are more or less equivalent notions,
+i.e. the uncertain data sampled from those measures have high IoU. 
+In the rest of the post, I will use entropy as a measure of uncertainty. 
+In theory, entropy does look like a good measure of uncertainty, but as
+the internal mechanism neural network itself is very much a black box,
+we don’t understand how a prediction is made and naturally we don’t 
+understand the uncertainty associated with a prediction.</p>
+
+<h3 id="how-robust-entropy-is-as-a-measure-of-uncertainty">How robust entropy is as a measure of uncertainty</h3>
+<p>Robust in this context means</p>
+<ul>
+  <li>Samples with high entropy have a interpretable reason to be “difficult” samples.</li>
+  <li>Entropy as a measure should withstand randomization, i.e. models trained with different randomization should yield the similar entropy on any samples</li>
+  <li>Entropy should change continous with respect to the input.
+Mathematically speaking, $H(f(x))$ is indeed a continuous function with respect to $x$,
+what we meant here is that we don’t want sharp change of entropy when we perturb the 
+input by a small noise.</li>
+</ul>
+
+<p>To investigate this problem, I generated 4 clusters of 2d data from the following Gaussians</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align*}
+\mu = (0.5, 0.5), & \sigma = (0.25, 0.25) \\
+\mu = (0.5, -0.5), & \sigma = (0.25, 0.25) \\
+\mu = (-0.5, 0.5), & \sigma = (0.25, 0.25) \\
+\mu = (-0.5, -0.5), & \sigma = (0.25, 0.25) 
+\end{align*} %]]></script>
+
+<p>The data looks like</p>
+
+<p stype="width: 100%; class=center"><img src="/assets/images/data-uncertainty-study.png" alt="data" /></p>
+
+<p><em>Fig 2. Training data</em></p>
+
+<p>I then trained a simple fully connect neural net with 5 hidden layers to distinguish
+those clusters. The model looks like this</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import torch
+import torch.nn as nn
+
+class DeterministicNet(nn.Module):
+    def __init__(self, hidden_layers=5):
+        super(DeterministicNet, self).__init__()
+        layers = [nn.Linear(2, 10), nn.ReLU(inplace=True)]
+        
+        for _ in range(hidden_layers):
+            layers.append(nn.Linear(10, 10))
+            layers.append(nn.ReLU(inplace=True))
+            
+        layers.append(nn.Linear(10, 4))
+        self.layers = nn.Sequential(*layers)
+
+    
+    def forward(self, x):
+        return self.layers(x)
+    
+</code></pre></div></div>
+
+<p>I call this model <code class="highlighter-rouge">DeterministicNet</code> because each neuron is a 
+deterministic number instead of a random variable. Yes, you guessed right we will talk
+about Bayesian network later. Of course we will, how can we avoid Bayesian net when we
+are talking about uncertainty?</p>
+
+<p>After 20 epochs of training, the model achieves a humble performance of 95% accuracy on
+the test set, which is sampled from the exactly the same Gaussians. Ok, now we are happy,
+because we have a reasonale architecture that can learn the distribution of those clusters.
+Let’s use it to study the robustness of entropy.</p>
+
+<p>Here is what I did:</p>
+<ul>
+  <li>Train 10 models on the same data with different randomization (same hyperparamters)</li>
+  <li>Sample 10000 points $S$ uniformly from the 2d plan $[-1.5, 1.5] \times [-1.5, 1.5]$</li>
+  <li>Let the 10 trained models to infer on $S$ and plot the entropy of each sample in $S$ as a heatmap.</li>
+</ul>
+
+<p>Here is the result:</p>
+
+<p><img src="/assets/images/heatmap-1-uncertainty-study.png" alt="heat-map-1" /></p>
+
+<p><em>Fig 3. Heatmap-1</em></p>
+
+<p>Before we start philosophying on this diagram, let’s ask ourselves what heatmap are we
+expecting? If the model $f$ understands the distribution of the data, then where it 
+should be confused?</p>
+
+<p>I intentionally generated the data in the way so that there are big areas of intersections
+among clusters. Since those 4 Gaussians are symmetric with respect to the origin and they
+are the same upto translation, points in the middle of intersection should be the most 
+confusing ones. The heatmap at (1,4) is the one we are expecting.</p>
+
+<p>What does the experiment tell us?</p>
+<ol>
+  <li>
+    <p>Only heatmaps at (1,4) and (2, 5) fullfil our expectation of the distribution of 
+uncertainty.
+The rest of the models produce inconsistent entropies. That means the quantity
+$H(f(x))$ does depend on how the model $f$ is trained, and they don’t converge
+even if the model itself converges.</p>
+  </li>
+  <li>
+    <p>Entropy varies wildly. In many heatmaps in Fig.2, entropy drops shaply immediately 
+outside the axes.</p>
+  </li>
+</ol>
+
+<p>Back to our question, is entropy a good measure of uncertainty?</p>
+
+<p>To the 1st observation, we should realize that uncertainty
+is in fact a subtle concept. There are two possible sources of uncertainty:</p>
+<ul>
+  <li>uncertainty that is inherent in the data itself
+In the above experiment, data lie in the middle of intersection carries this 
+type of uncertainty. The features of those data are not sufficient for any model,
+including the homo sapien themselves, to make a confident prediction. Which cluster
+does $(0, 0)$ belong to? All I say is it belongs to each cluster with a chance of 25%.
+It is clear that data with inherent uncertainty are useless for training a model.</li>
+</ul>
+
+<p>Another source of uncertainty arises from the model’s lack of “knowledge” in certain
+regions of the data. In heatmap (2,3), the model lacks “knowledge” about the red cluster. 
+Points near the center of the orange cluster do not carry inherent uncertainty, 
+but the model still cannot cannot understand this region. This is in fact the type of
+uncertainty we are looking for.</p>
+
+<p>To the 2nd observation, we should take a step back and ask ourself is $f(x)$ itself a mildly
+continuous function? Meaning does small perturbations to $x$ induce small perturbations in
+$f(x)$? This question has been studied in the context of 
+<a href="https://arxiv.org/pdf/1312.6199.pdf">adversarial examples</a>.
+People found that a tiny and visually unperceptable perturbation to 
+an input image can cause the state-of-art CNN to make random predictions. 
+But state-of-art CNNs are hundred-layers deep, the chaotic effects of adding small noise to 
+the input propagates through the layers and becomes even more unfathomably chaotic, 
+that’s why adding small change to the input will cause dramatic change in the prediction. 
+We don’t have this problem for our humble 7-layer perceptron. I resampled uniformly from 
+the 2d-plane and plot the heatmap of entropy of the same 10 models</p>
+
+<p><img src="/assets/images/heatmap-2-uncertainty-study.png" alt="heat-map-2" /></p>
+
+<p><em>Fig 4. Heatmap-2</em></p>
+
+<p>The heatmap, to my eye, is very much the same as in Fig 3. This means our model is fairly 
+stable and the fact that entropy drops shapely outside the axes cannot be attributed to 
+model instability. I think the reason behind it is that the cross entropy loss function
+encourages the model to make low entropy prediction, so that as soon as the model gains 
+more clue regarding which cluster a sample belongs, it makes a highly confident prediction
+to minimize the cross entropy loss.</p>
+
+<p>So what have we learnt so far:</p>
+<ul>
+  <li>$H(f(x))$ does not distinguish between inherent uncertainty in the data and the model’s lack <br />
+of training on certain distribution</li>
+  <li>$H(f(x))$ can change very rapidly</li>
+</ul>
+
+<p>Back to our motivation of using entropy as a measure of uncertainty to sample 
+informative data for active learning, what the 
+above experiment showed is that one could sample data with inherent uncertainty, in which case
+the training would be frutile; Or one could sample points in a very narrow range, in which case
+one can drastic increase the variance of the data distribution and cause the training to be 
+unstable.</p>
+
+<p>Let’s verifying this by running an active learning experiment with entropy as a measure of 
+uncertainty. The python-flavored pseudo-code for the experiment is</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Init the model
+train_set &lt;-  80% data shown in Fig. 2
+test_set &lt;- 20% data shown in Fig. 2
+
+# keep track of which samples is labeled 
+# start by pretending all samples are unlabeled
+unlabeled = list(range(len(train_set)); labeled = [] 
+
+for loop in range(10):
+    if loop == 0:
+        selected_indices = Randomly Select 1000 samples from `unlabeled`
+    else:
+        selected_indices = Select 1000 samples from `unlabeled` with the highest entropy
+    
+    # add selected samples to the pool of labeled data
+    labeled.extend(selected_indices)
+    
+    # remove selected samples from the pool of unlabeled data 
+    unlabeled = unlabeled - selected_indices
+    
+    # train the model with labeled data
+    train(model, labeled)
+
+    # validate the model on the test set
+    validate(model, test_set)
+</code></pre></div></div>
+<p>At the end of each loop, we will compute the validation accuracy. We will compare this
+experiment with a random active learning as the baseline. Random active learning simply
+means at the begining of each loop, it randomly choose 1000 samples to add to the labeled
+pool. The result is shown below</p>
+
+<p><img src="/assets/images/al-comparison-uncertainty-study.png" alt="entropy-active-learning" /></p>
+
+<p><em>Fig 5. Entropy active learning</em></p>
+
+<p>$x$-axis indicates the loop number and $y$-axis indicates the validation accuracy. 
+As we can see, the baseline wins by a big margin in the intermediate loops.</p>
+
+<p>Let’s look at what points are being sampled at each loop of the entropy-based active
+learning</p>
+
+<p><img src="/assets/images/sampled-points-entropy-uncertainty-study.png" alt="sampled-points" /></p>
+
+<p>*Fig 6. Points sampled through entropy</p>
+
+<p>It does confirm our using entropy, one can either sample points with inherent uncertainty
+like in (2, 1), (2,2), (2, 3) or points with narrow range of distribution.</p>
+
+<p>Uncertainty is certainly a reasonable sampling strategy to select informative data, but as 
+we have seen in this post if we don’t choose the right metric to proxy uncertainty, it
+can lead to bad training result.</p>
+
+<p>In the upcoming posts, I will discuss uncertainty derived from Bayesian framework and 
+why it is a much better way of measuring model’s uncertainty.</p>
+
+
+  </div>
+
+
+  <div class="page-navigation">
+    
+
+    
+  </div>
+
+  
+    
+
+  
+
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
