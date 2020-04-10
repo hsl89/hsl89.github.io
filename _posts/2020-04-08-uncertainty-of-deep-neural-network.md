@@ -20,7 +20,7 @@ The entire field of *active learning* is built on top of that. The idea of
 active learning is illustrated in Fig.1
 
 {: style="width: 100%; class=center"}
-![Active learning]({{'/assets/images/active-learning.png'}})
+![Active learning]({{'/assets/images/active-learning-uncertainty-study.png'}})
 
 *Fig. 1. Active learning*
 

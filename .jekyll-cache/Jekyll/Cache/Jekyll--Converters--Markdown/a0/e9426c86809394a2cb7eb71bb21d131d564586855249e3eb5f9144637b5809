@@ -1,4 +1,4 @@
-I"ˆ8<blockquote>
+I"š8<blockquote>
   <p>A homo sapien learns its environment by investigating objects that it is uncertain
 about. More successful homo sapiens are generally those who push themselves
 outside their comfort zone and navigate through unfamiliar circumstances. 
@@ -14,7 +14,7 @@ samples to train the model is not a novel idea.
 The entire field of <em>active learning</em> is built on top of that. The idea of 
 active learning is illustrated in Fig.1</p>
 
-<p style="width: 100%; class=center"><img src="/assets/images/active-learning.png" alt="Active learning" /></p>
+<p style="width: 100%; class=center"><img src="/assets/images/active-learning-uncertainty-study.png" alt="Active learning" /></p>
 
 <p><em>Fig. 1. Active learning</em></p>
 
