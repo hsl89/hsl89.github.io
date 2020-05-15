@@ -20,6 +20,14 @@ kramdown:
   auto_ids: true
   syntax_highlighter: rouge
 
+JB: 
+    version: 0.3.0
+    BATH_PATH: false
+    ASSET_PATH: false
+
+    archive_path: /archive.html
+
+
 
 # Includes an icon in the footer for each username you enter
 footer-links:

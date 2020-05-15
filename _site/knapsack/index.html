@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Knapsack problem – Stream of Conscious – </title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="
+  Given a list of positive integers 
+$(x_0,…,x_n)$ and a positive integer $m$, how many non-negative integer tuples
+$(v_0,…,v_n)$ are there so that
+
+
+
+
+" />
+    <meta property="og:description" content="
+  Given a list of positive integers 
+$(x_0,…,x_n)$ and a positive integer $m$, how many non-negative integer tuples
+$(v_0,…,v_n)$ are there so that
+
+
+
+
+" />
+    
+    <meta name="author" content="Stream of Conscious" />
+
+    
+    <meta property="og:title" content="Knapsack problem" />
+    <meta property="twitter:title" content="Knapsack problem" />
+    
+
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Stream of Conscious - " href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Stream of Conscious</a></h1>
+            <p class="site-description"></p>
+          </div>
+
+          <nav>
+            <!-- <a href="/">Blog</a> -->
+            <!-- <a href="/about">About</a> -->
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Knapsack problem</h1>
+    <p class="post-meta">
+
+      <time datetime="2020-04-11T00:00:00-07:00" itemprop="datePublished">
+        
+        Apr 11, 2020
+      </time>
+
+      <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+        by <span itemprop="name">Hongshan Li</span>
+      </span>
+
+      <span>
+        
+      </span>
+      <!--
+      <span class="share-buttons">
+        <span class="share-button"><a class="twitter-share-button" href="https://twitter.com/share" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></span>
+
+        <span class="share-button"><span class="fb-like" data-href="/knapsack/" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></span></span>
+      </span>
+      <div style="clear: both;"/>
+      -->
+
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <blockquote>
+  <p>Given a list of positive integers 
+$(x_0,…,x_n)$ and a positive integer $m$, how many non-negative integer tuples
+$(v_0,…,v_n)$ are there so that</p>
+</blockquote>
+
+<script type="math/tex; mode=display">\sum v_i x_i = m</script>
+
+<!--more-->
+
+<p>Let $P(x_0,..x_n, m)$ denote the solution to the above problem. In the simplest case,
+let $n=0$, then $P(x_0, m) = 0, 1$, depending on if $m$ is a multiple of $x_0$. 
+In the next simplest case, let $n=1$, then</p>
+
+<script type="math/tex; mode=display">P(x_0, x_1, m) = \sum\limits_{i=0}^{k_1}  p(x_0, m - ix_1)</script>
+
+<p>where $k_1 \in \mathbb{Z}$ such that $m - k_1x_1 &gt;= 0$ and $m - (k_1 +1)x_1 &lt; 0$.</p>
+
+<script type="math/tex; mode=display">P(x_0,...,x_n, m) = \sum\limits_{i=0}^{k_n} P(x_0,...,x_{n-1}, m - i\times x_n)</script>
+
+<p>This probably reminds you of dynamic programming, in which we bootstrap the solution
+from solutions of subproblems.</p>
+
+<p>In this case we will build a 2d dp table such that</p>
+
+<script type="math/tex; mode=display">dp[i][j] = P(x_0,...,x_{i-1}, j)</script>
+
+<p>The update rule for this dp table is precisely eq 1.</p>
+
+<script type="math/tex; mode=display">dp[i][j] = \sum\limits_{s=0}^{s_{i-1}}dp[i-1][j-sx_{i-1}]</script>
+
+<p>Let’s put it into python</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def num_tuples(nums: List, m:int) -&gt; int:
+    '''
+    nums: a list of positive integers
+    m: a positive integer
+
+    Return: number of ways to use elements of nums with repetition to sum up to m
+    '''
+    n = len(nums)
+    dp = [[0 for _ in range(m+1)] for _ in range(len(n))]
+    
+    # base case
+    for j in range(m+1):
+        if float(j) % nums[0] == 0:
+            dp[1][j] = 1
+
+    for i in range(1, n+1):
+        for j in range(m+1):
+            # use previous solution
+            k = 0
+            while nums[i-1]*k &lt;= j:
+                dp[i][j] += dp[i-1][j-k*nums[i-1]]
+                k+=1
+    return dp[n][m]
+</code></pre></div></div>
+
+<p>This algothrithm is $O(nmm)$, it is not easy to scale. How can we improve on it?</p>
+
+<p>For all dynamic programming question, one should be able to write down a functional 
+equation as the bootstraping rule. In the above solution, our functional equation is</p>
+
+<script type="math/tex; mode=display">P(x_0,...x_n,  m) = \sum\limits_{i=0}^{k_n}  p(x_0,...,x_{n-1},  m - ix_n)</script>
+
+<p>But</p>
+
+<script type="math/tex; mode=display">\sum\limits_{i=1}^{k_n} p(x_0,...,x_{n-1}, m - ix_n) = p(x_0,...,x_n, m - x_n)</script>
+
+<p>In our dp table, when computing $dp[i][j] = p(x_0,…,x_{i-1}, j)$ 
+we have in fact computed $dp[i][j-x_{i-1}] = p(x_0,…,x_{i-1}, j - x_{i-1})$. 
+Instead of using it, we choose to only to use info from $dp[i-1][:]$, that is where the 
+inefficiency comes in.</p>
+
+<p>To recap, we update the dp table by
+<script type="math/tex">dp[i][j] = dp[i][j-coins[i-1]] + dp[i-1][j]</script></p>
+
+<p>Here is how to fix it</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def num_tuples(nums: List, m:int) -&gt; int:
+    '''
+    nums: a list of positive integers
+    m: a positive integer
+
+    Return: number of ways to use elements of nums with repetition to sum up to m
+    '''
+    n = len(nums)
+    dp = [[0 for _ in range(m+1)] for _ in range(len(n))]
+    
+    # base case
+    for j in range(m+1):
+        if float(j) % nums[0] == 0:
+            dp[1][j] = 1
+
+    for i in range(1, n+1):
+        for j in range(m+1):
+            dp[i][j] = dp[i-1][j]
+
+            if coins[i-1] &lt;= j:
+                dp[i][j] += dp[i][j - coins[i-1]]
+
+    return dp[n][m]
+</code></pre></div></div>
+
+
+  </div>
+
+
+  <div class="page-navigation">
+    
+      <a class="prev" href="/uncertainty-of-deep-neural-network/">&larr; Uncertainty of Deep Neural Network</a>
+    
+
+    
+      <a class="next" href="/bayesian-deep-learning/">Bayesian deep learning &rarr;</a>
+    
+  </div>
+
+  
+    
+
+  
+
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

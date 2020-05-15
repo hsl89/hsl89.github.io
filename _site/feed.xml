@@ -1,4 +1,288 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-04-09T22:15:28-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Stream of Conscious</title><author><name>Hongshan Li</name></author><entry><title type="html">Uncertainty of Deep Neural Network</title><link href="http://localhost:4000/uncertainty-of-deep-neural-network/" rel="alternate" type="text/html" title="Uncertainty of Deep Neural Network" /><published>2020-04-08T00:00:00-07:00</published><updated>2020-04-08T00:00:00-07:00</updated><id>http://localhost:4000/uncertainty-of-deep-neural-network</id><content type="html" xml:base="http://localhost:4000/uncertainty-of-deep-neural-network/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-15T15:16:31-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Stream of Conscious</title><author><name>Hongshan Li</name></author><entry><title type="html">Bayesian deep learning</title><link href="http://localhost:4000/bayesian-deep-learning/" rel="alternate" type="text/html" title="Bayesian deep learning" /><published>2020-05-14T00:00:00-07:00</published><updated>2020-05-14T00:00:00-07:00</updated><id>http://localhost:4000/bayesian-deep-learning</id><content type="html" xml:base="http://localhost:4000/bayesian-deep-learning/">&lt;blockquote&gt;
+  &lt;p&gt;As we have seen from the &lt;a href=&quot;https://hsl89.github.io/uncertainty-of-deep-neural-network/&quot;&gt;previous post&lt;/a&gt;. The probability vector of
+a deterministic network cannot consistently captures the uncertainty of its
+prediction. And we also see that if we use the entropy of the probablity 
+vector as a proxy to uncertainty, the performance of active learning is 
+pretty bad. In this post, I want to discuss some basics of Bayesian 
+statistics and using it to study the model uncertainty. Then we will use 
+this uncertainty to design an active learning query strategy.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;warm-up&quot;&gt;Warm up&lt;/h2&gt;
+&lt;p&gt;In supervised machine learning, the objective is to find a function
+$f$ that best describes the features $X = (x_1, x_2, \cdots, x_n)$
+and the labels $Y = (y_1, y_2, \cdots, y_n)$. Suppose the data 
+$D = (X, Y)$ is observed from the system $S$. Then, $f$ is a proxy
+to the real data generation process of $S$ which is difficult to know.
+The criterion for a good model $f$ is that when new observations 
+$D^{\prime} = (X^{\prime}, Y^{\prime}$ arises, $f$ can still relate
+$X^{\prime}$ and $Y^{\prime}$ with good precision.&lt;/p&gt;
+
+&lt;p&gt;Let take one step back and think about what are we doing when we build
+and train an ML model?
+There are infinitely many ways you can relate $X$ to $Y$ up to certain extent, 
+the process of building and training an ML model is amount to find an $f$
+such that &lt;em&gt;after&lt;/em&gt; seeing the data $D$, we belief $f$ is the most likely 
+candidate that describe the unknown data generation process of $S$.&lt;/p&gt;
+
+&lt;p&gt;Formally, let $\Theta$ be the function space that describes the process of 
+$S$ that relates $X$ to $Y$, i.e. $\Theta$ is a set of all &lt;em&gt;possible&lt;/em&gt; candidates
+$\theta$ that relates $X$ to $Y$. The process of machine learning is to 
+find a conditional distribution $p(\theta | D)$ over $\Theta$. This distribution
+reflects our belief on how likely the candidate $\theta$ is the one that relates
+$X$ to $Y$. This distribution $p(\theta | D)$ has an interesting name, it is called
+the &lt;em&gt;posterior&lt;/em&gt; distribution on $\Theta$, because it is something we derive &lt;em&gt;after&lt;/em&gt;
+seeing $D$.&lt;/p&gt;
+
+&lt;p&gt;This brings us to the playground of Bayesian statistics, because it offers a 
+framework for us to think about $p(\theta | D)$.&lt;/p&gt;
+
+&lt;h2 id=&quot;bayes-theorem&quot;&gt;Bayes’ Theorem&lt;/h2&gt;
+&lt;p&gt;There are two things you can do when you are handed with the data $D$:&lt;/p&gt;
+
+&lt;p&gt;1) Based on your understanding of the $S$, you make a hypothesis $H$ about the 
+how $X$ and $Y$ are related, then you update your hypothesis $H$ after
+inspecting $D$&lt;/p&gt;
+
+&lt;p&gt;2) You can compute frequency statistics on $D$ and make claims on $S$ 
+directly from those frequency statistics. For example, you might have
+heard people talking about making &lt;em&gt;Null Hypothesis&lt;/em&gt; and calculating
+$p$-value that reflects the probability that &lt;strong&gt;given&lt;/strong&gt; Null Hypothesis
+is true, Null Hypothesis would be rejected $p*100$ times out of 100 trials 
+due to randomness in data collection.&lt;/p&gt;
+
+&lt;p&gt;If you prefer 1, then you are labeled as a &lt;em&gt;Bayesian statistician&lt;/em&gt;;
+If you prefer 2, then you are labeled as a &lt;em&gt;frequentist&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The subtle difference between Bayesians and frequentists is that 
+Bayesians want $P(H | D)$ whereas frequentists want $P(D | H)$, i.e.
+Bayesians want to know how much belief to put in the hypothesis 
+$H$ after seeing the data $D$; frequentists want to know given the 
+hypothesis is true, what’s the odd for the observation $D$?&lt;/p&gt;
+
+&lt;p&gt;One thing that relates these two schools of thought is the Bayes’ Theorem:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(H | D) = \frac{P(D | H) P(H)}{P(D)}&lt;/script&gt;
+
+&lt;p&gt;In Bayesian statistics, each term above has a name:&lt;/p&gt;
+
+&lt;p&gt;$P(D | H)$ is the &lt;em&gt;likelyhood&lt;/em&gt; of the dataset $D$,i.e.
+how likely can we see $D$ given hypothesis $H$&lt;/p&gt;
+
+&lt;p&gt;$P(H)$ is the &lt;em&gt;prior&lt;/em&gt; on the hypothesis $H$,i.e. how
+deep we believe the data generation process is $H$.&lt;/p&gt;
+
+&lt;p&gt;$P(D)$ is called the &lt;em&gt;evidence&lt;/em&gt;. It is the probablity of the 
+observation $D$. One way to think about it is “the average” 
+probability of seeing the observation $D$ over all hypothesis
+of data generation process:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(D) = \int P(D | H) P(H) dH&lt;/script&gt;
+
+&lt;p&gt;If you do machine learning, then you are baptized by Bayesian
+school of thought, even if you have not heard of Bayesian statistics
+until 10 mins ago. When you do the following things&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;from sklearn.ensembles import RandomForestClassifier
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;or&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;import torch.nn as nn
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;you are conjuring up a hypothesis $H$ about the relation between $X$ and $Y$,
+a function space $\Theta$ that describes the relation between $X$ and $Y$ and
+a &lt;em&gt;prior&lt;/em&gt; probability distribution $p(\theta)$ on $\Theta$. Except intead of
+looking at all possible functions, you are looking at functions that look like
+a random forest in case 1, a neural network in case 2.&lt;/p&gt;
+
+&lt;p&gt;When you train your model, you are updating your posterior $P(\theta | D)$ on 
+$\Theta$. Each “fit” you do gives you the most likely candidate $\theta$ given $D$.&lt;/p&gt;
+
+&lt;h2 id=&quot;uncertainty&quot;&gt;Uncertainty&lt;/h2&gt;
+&lt;p&gt;Before we jump into uncertainty in machine learning, let’s ask ourselves what are
+we even uncertain about? (Pause and think)&lt;/p&gt;
+
+&lt;p&gt;I think one reasonable thing to be uncertain about is the posterior distribution
+$p(\theta | D)$ on $\Theta$. We find a posterior through marvelous machine learning,
+how do we know how far it is from the true posterior?&lt;/p&gt;
+
+&lt;p&gt;You can “compute” this uncertainty via Shannon entropy:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;H[\theta | D] = -\int_{\Theta} p(\theta | D) \log p(\theta | D) d\theta&lt;/script&gt;
+
+&lt;p&gt;The uncertainty on the posterior $p(\theta | D)$ naturally carries over 
+to the uncertainty for making predictions. Let $x^*$ be a new sample
+observed from the system $S$.&lt;/p&gt;
+
+&lt;p&gt;Given our function space $\Theta$ and 
+posterior $p(\theta | D)$, the probability of $x^*$ mapped to $y^*=c$
+under the unknown data generation process of $S$ is given by&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;p(y^*=c | x^*, D) = \int_{\Theta} p(y^*=c | x^*, \theta)p(\theta | D) d\theta&lt;/script&gt;
+
+&lt;p&gt;If the output $y^*$ is a discrete random variable that takes on value
+$c_1, c_2, \cdots, c_n$, then we can again use Shannon entropy to 
+“compute” this predictive uncertainty&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;H[y^*|x^*, D] = - \sum_{i=1}^n p(y^*=c_i | x^*, D)\log p(y^*=c_i | x^*, D)&lt;/script&gt;
+
+&lt;h2 id=&quot;information-theoretic-active-learning&quot;&gt;Information-theoretic active learning&lt;/h2&gt;
+&lt;p&gt;The goal of active learning is to selectively add data to the training 
+set $D$ that “boost the model’s performance to the largest extent”. 
+In light of the Bayesian philosophy, how do we materialize the objective of 
+active learning?&lt;/p&gt;
+
+&lt;p&gt;One reasonable thing we can do is to enlarge the data set $D$ in the way
+so that it reduces the uncertainty of posterior $p(\theta | D)$ fastest.
+We assumed the existence of a function space $\Theta$ that gathers all potential
+candidates for describing the data generation process of $S$, we have computed
+the posterior $p(\theta | D)$ on $\Theta$. Now, we are given more data $D^{\prime}$
+we can say the most valuable sample $(x’, y’)$ is the one that reduces the 
+uncertainty of the posterior $p(\theta | D \cup {(x’, y’)})$ fastest, i.e.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\tag{1}
+\text{arg max}_{x',y'} H[\theta | D] - \mathbb{E}_{y'\sim p(y'|x',D)}
+    (H[\theta | D'\cup {(x', y')}])&lt;/script&gt;
+
+&lt;p&gt;Of course, in practice there is no way you can evalute the above quantity,
+because it involves many intractable integrals. 
+But if $y$ is a discrete random variable, i.e. classification ML problem, 
+there are ways to get around it. Instead of looking at the posterior uncertainty,
+we can look at the predictive uncertainty because $H[y^&lt;em&gt;|x^&lt;/em&gt;, D]$ is computed
+as a finite sum.&lt;/p&gt;
+
+&lt;p&gt;In this case, the sample $(x’, y’)$ satisfies equation (1) is also the one
+that has the biggest conditional information gain:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\tag{2}
+I[\theta, y'|x', D] = \text{arg max}_{(x', y')} H[y'|x',D] -
+    \mathbb{E}_{\theta \sim p(\theta | D)}[H[y'|x', \theta]]&lt;/script&gt;
+
+&lt;p&gt;We can interpret the samples $(x’, y’)$ with maximal conditional information
+gain as the one such that the overall predictive uncertainty is high (high 
+$H[y|x, D]$), but for each fixed element $\theta$ in $\Theta$, the 
+predictive entropy is low (low $H[y|x, \theta]$). Those are the samples
+that incurs biggest dissagreement among individual members of $\Theta$.&lt;/p&gt;
+
+&lt;p&gt;The query strategy defined by eq (2) is called Bayesian Active Learning by
+Disagreement (BALD)&lt;/p&gt;
+
+&lt;p&gt;In the next blog, I will discuss practical implementation of BALD via
+approximate inference.&lt;/p&gt;
+
+&lt;h2 id=&quot;reference&quot;&gt;Reference&lt;/h2&gt;
+&lt;p&gt;comparison between bayesian and frequentist
+https://ocw.mit.edu/courses/mathematics/18-05-introduction-to-probability-and-statistics-spring-2014/readings/MIT18_05S14_Reading20.pdf&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://mlg.eng.cam.ac.uk/yarin/thesis/3_bayesian_deep_learning.pdf&quot;&gt;Yarin Gal Thesis&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;https://www.mit.edu/~9.520/spring11/slides/class19_approxinf.pdf&lt;/p&gt;
+
+&lt;p&gt;Image data
+https://arxiv.org/pdf/1703.02910.pdf&lt;/p&gt;
+
+&lt;p&gt;Classification
+https://arxiv.org/pdf/1112.5745.pdf&lt;/p&gt;</content><author><name>Hongshan Li</name></author><summary type="html">As we have seen from the previous post. The probability vector of a deterministic network cannot consistently captures the uncertainty of its prediction. And we also see that if we use the entropy of the probablity vector as a proxy to uncertainty, the performance of active learning is pretty bad. In this post, I want to discuss some basics of Bayesian statistics and using it to study the model uncertainty. Then we will use this uncertainty to design an active learning query strategy. Warm up In supervised machine learning, the objective is to find a function $f$ that best describes the features $X = (x_1, x_2, \cdots, x_n)$ and the labels $Y = (y_1, y_2, \cdots, y_n)$. Suppose the data $D = (X, Y)$ is observed from the system $S$. Then, $f$ is a proxy to the real data generation process of $S$ which is difficult to know. The criterion for a good model $f$ is that when new observations $D^{\prime} = (X^{\prime}, Y^{\prime}$ arises, $f$ can still relate $X^{\prime}$ and $Y^{\prime}$ with good precision. Let take one step back and think about what are we doing when we build and train an ML model? There are infinitely many ways you can relate $X$ to $Y$ up to certain extent, the process of building and training an ML model is amount to find an $f$ such that after seeing the data $D$, we belief $f$ is the most likely candidate that describe the unknown data generation process of $S$. Formally, let $\Theta$ be the function space that describes the process of $S$ that relates $X$ to $Y$, i.e. $\Theta$ is a set of all possible candidates $\theta$ that relates $X$ to $Y$. The process of machine learning is to find a conditional distribution $p(\theta | D)$ over $\Theta$. This distribution reflects our belief on how likely the candidate $\theta$ is the one that relates $X$ to $Y$. This distribution $p(\theta | D)$ has an interesting name, it is called the posterior distribution on $\Theta$, because it is something we derive after seeing $D$. This brings us to the playground of Bayesian statistics, because it offers a framework for us to think about $p(\theta | D)$. Bayes’ Theorem There are two things you can do when you are handed with the data $D$: 1) Based on your understanding of the $S$, you make a hypothesis $H$ about the how $X$ and $Y$ are related, then you update your hypothesis $H$ after inspecting $D$ 2) You can compute frequency statistics on $D$ and make claims on $S$ directly from those frequency statistics. For example, you might have heard people talking about making Null Hypothesis and calculating $p$-value that reflects the probability that given Null Hypothesis is true, Null Hypothesis would be rejected $p*100$ times out of 100 trials due to randomness in data collection. If you prefer 1, then you are labeled as a Bayesian statistician; If you prefer 2, then you are labeled as a frequentist The subtle difference between Bayesians and frequentists is that Bayesians want $P(H | D)$ whereas frequentists want $P(D | H)$, i.e. Bayesians want to know how much belief to put in the hypothesis $H$ after seeing the data $D$; frequentists want to know given the hypothesis is true, what’s the odd for the observation $D$? One thing that relates these two schools of thought is the Bayes’ Theorem: In Bayesian statistics, each term above has a name: $P(D | H)$ is the likelyhood of the dataset $D$,i.e. how likely can we see $D$ given hypothesis $H$ $P(H)$ is the prior on the hypothesis $H$,i.e. how deep we believe the data generation process is $H$. $P(D)$ is called the evidence. It is the probablity of the observation $D$. One way to think about it is “the average” probability of seeing the observation $D$ over all hypothesis of data generation process: If you do machine learning, then you are baptized by Bayesian school of thought, even if you have not heard of Bayesian statistics until 10 mins ago. When you do the following things from sklearn.ensembles import RandomForestClassifier or import torch.nn as nn you are conjuring up a hypothesis $H$ about the relation between $X$ and $Y$, a function space $\Theta$ that describes the relation between $X$ and $Y$ and a prior probability distribution $p(\theta)$ on $\Theta$. Except intead of looking at all possible functions, you are looking at functions that look like a random forest in case 1, a neural network in case 2. When you train your model, you are updating your posterior $P(\theta | D)$ on $\Theta$. Each “fit” you do gives you the most likely candidate $\theta$ given $D$. Uncertainty Before we jump into uncertainty in machine learning, let’s ask ourselves what are we even uncertain about? (Pause and think) I think one reasonable thing to be uncertain about is the posterior distribution $p(\theta | D)$ on $\Theta$. We find a posterior through marvelous machine learning, how do we know how far it is from the true posterior? You can “compute” this uncertainty via Shannon entropy: The uncertainty on the posterior $p(\theta | D)$ naturally carries over to the uncertainty for making predictions. Let $x^*$ be a new sample observed from the system $S$. Given our function space $\Theta$ and posterior $p(\theta | D)$, the probability of $x^*$ mapped to $y^*=c$ under the unknown data generation process of $S$ is given by If the output $y^*$ is a discrete random variable that takes on value $c_1, c_2, \cdots, c_n$, then we can again use Shannon entropy to “compute” this predictive uncertainty Information-theoretic active learning The goal of active learning is to selectively add data to the training set $D$ that “boost the model’s performance to the largest extent”. In light of the Bayesian philosophy, how do we materialize the objective of active learning? One reasonable thing we can do is to enlarge the data set $D$ in the way so that it reduces the uncertainty of posterior $p(\theta | D)$ fastest. We assumed the existence of a function space $\Theta$ that gathers all potential candidates for describing the data generation process of $S$, we have computed the posterior $p(\theta | D)$ on $\Theta$. Now, we are given more data $D^{\prime}$ we can say the most valuable sample $(x’, y’)$ is the one that reduces the uncertainty of the posterior $p(\theta | D \cup {(x’, y’)})$ fastest, i.e. Of course, in practice there is no way you can evalute the above quantity, because it involves many intractable integrals. But if $y$ is a discrete random variable, i.e. classification ML problem, there are ways to get around it. Instead of looking at the posterior uncertainty, we can look at the predictive uncertainty because $H[y^|x^, D]$ is computed as a finite sum. In this case, the sample $(x’, y’)$ satisfies equation (1) is also the one that has the biggest conditional information gain: We can interpret the samples $(x’, y’)$ with maximal conditional information gain as the one such that the overall predictive uncertainty is high (high $H[y|x, D]$), but for each fixed element $\theta$ in $\Theta$, the predictive entropy is low (low $H[y|x, \theta]$). Those are the samples that incurs biggest dissagreement among individual members of $\Theta$. The query strategy defined by eq (2) is called Bayesian Active Learning by Disagreement (BALD) In the next blog, I will discuss practical implementation of BALD via approximate inference. Reference comparison between bayesian and frequentist https://ocw.mit.edu/courses/mathematics/18-05-introduction-to-probability-and-statistics-spring-2014/readings/MIT18_05S14_Reading20.pdf Yarin Gal Thesis https://www.mit.edu/~9.520/spring11/slides/class19_approxinf.pdf Image data https://arxiv.org/pdf/1703.02910.pdf Classification https://arxiv.org/pdf/1112.5745.pdf</summary></entry><entry><title type="html">Knapsack problem</title><link href="http://localhost:4000/knapsack/" rel="alternate" type="text/html" title="Knapsack problem" /><published>2020-04-11T00:00:00-07:00</published><updated>2020-04-11T00:00:00-07:00</updated><id>http://localhost:4000/knapsack</id><content type="html" xml:base="http://localhost:4000/knapsack/">&lt;blockquote&gt;
+  &lt;p&gt;Given a list of positive integers 
+$(x_0,…,x_n)$ and a positive integer $m$, how many non-negative integer tuples
+$(v_0,…,v_n)$ are there so that&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\sum v_i x_i = m&lt;/script&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;Let $P(x_0,..x_n, m)$ denote the solution to the above problem. In the simplest case,
+let $n=0$, then $P(x_0, m) = 0, 1$, depending on if $m$ is a multiple of $x_0$. 
+In the next simplest case, let $n=1$, then&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(x_0, x_1, m) = \sum\limits_{i=0}^{k_1}  p(x_0, m - ix_1)&lt;/script&gt;
+
+&lt;p&gt;where $k_1 \in \mathbb{Z}$ such that $m - k_1x_1 &amp;gt;= 0$ and $m - (k_1 +1)x_1 &amp;lt; 0$.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(x_0,...,x_n, m) = \sum\limits_{i=0}^{k_n} P(x_0,...,x_{n-1}, m - i\times x_n)&lt;/script&gt;
+
+&lt;p&gt;This probably reminds you of dynamic programming, in which we bootstrap the solution
+from solutions of subproblems.&lt;/p&gt;
+
+&lt;p&gt;In this case we will build a 2d dp table such that&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;dp[i][j] = P(x_0,...,x_{i-1}, j)&lt;/script&gt;
+
+&lt;p&gt;The update rule for this dp table is precisely eq 1.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;dp[i][j] = \sum\limits_{s=0}^{s_{i-1}}dp[i-1][j-sx_{i-1}]&lt;/script&gt;
+
+&lt;p&gt;Let’s put it into python&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;def num_tuples(nums: List, m:int) -&amp;gt; int:
+    '''
+    nums: a list of positive integers
+    m: a positive integer
+
+    Return: number of ways to use elements of nums with repetition to sum up to m
+    '''
+    n = len(nums)
+    dp = [[0 for _ in range(m+1)] for _ in range(len(n))]
+    
+    # base case
+    for j in range(m+1):
+        if float(j) % nums[0] == 0:
+            dp[1][j] = 1
+
+    for i in range(1, n+1):
+        for j in range(m+1):
+            # use previous solution
+            k = 0
+            while nums[i-1]*k &amp;lt;= j:
+                dp[i][j] += dp[i-1][j-k*nums[i-1]]
+                k+=1
+    return dp[n][m]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This algothrithm is $O(nmm)$, it is not easy to scale. How can we improve on it?&lt;/p&gt;
+
+&lt;p&gt;For all dynamic programming question, one should be able to write down a functional 
+equation as the bootstraping rule. In the above solution, our functional equation is&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(x_0,...x_n,  m) = \sum\limits_{i=0}^{k_n}  p(x_0,...,x_{n-1},  m - ix_n)&lt;/script&gt;
+
+&lt;p&gt;But&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\sum\limits_{i=1}^{k_n} p(x_0,...,x_{n-1}, m - ix_n) = p(x_0,...,x_n, m - x_n)&lt;/script&gt;
+
+&lt;p&gt;In our dp table, when computing $dp[i][j] = p(x_0,…,x_{i-1}, j)$ 
+we have in fact computed $dp[i][j-x_{i-1}] = p(x_0,…,x_{i-1}, j - x_{i-1})$. 
+Instead of using it, we choose to only to use info from $dp[i-1][:]$, that is where the 
+inefficiency comes in.&lt;/p&gt;
+
+&lt;p&gt;To recap, we update the dp table by
+&lt;script type=&quot;math/tex&quot;&gt;dp[i][j] = dp[i][j-coins[i-1]] + dp[i-1][j]&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;Here is how to fix it&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;def num_tuples(nums: List, m:int) -&amp;gt; int:
+    '''
+    nums: a list of positive integers
+    m: a positive integer
+
+    Return: number of ways to use elements of nums with repetition to sum up to m
+    '''
+    n = len(nums)
+    dp = [[0 for _ in range(m+1)] for _ in range(len(n))]
+    
+    # base case
+    for j in range(m+1):
+        if float(j) % nums[0] == 0:
+            dp[1][j] = 1
+
+    for i in range(1, n+1):
+        for j in range(m+1):
+            dp[i][j] = dp[i-1][j]
+
+            if coins[i-1] &amp;lt;= j:
+                dp[i][j] += dp[i][j - coins[i-1]]
+
+    return dp[n][m]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>Hongshan Li</name></author><summary type="html">Given a list of positive integers $(x_0,…,x_n)$ and a positive integer $m$, how many non-negative integer tuples $(v_0,…,v_n)$ are there so that</summary></entry><entry><title type="html">Uncertainty of Deep Neural Network</title><link href="http://localhost:4000/uncertainty-of-deep-neural-network/" rel="alternate" type="text/html" title="Uncertainty of Deep Neural Network" /><published>2020-04-08T00:00:00-07:00</published><updated>2020-04-08T00:00:00-07:00</updated><id>http://localhost:4000/uncertainty-of-deep-neural-network</id><content type="html" xml:base="http://localhost:4000/uncertainty-of-deep-neural-network/">&lt;blockquote&gt;
   &lt;p&gt;A homo sapien learns its environment by investigating objects that it is uncertain
 about. More successful homo sapiens are generally those who push themselves
 outside their comfort zone and navigate through unfamiliar circumstances. 

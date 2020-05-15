@@ -1,0 +1,28 @@
+I"ä<blockquote>
+  <p>As we have seen from the <a href="https://hsl89.github.io/uncertainty-of-deep-neural-network/">previous post</a>. The probability vector of
+a deterministic network cannot consistently captures the uncertainty of its
+prediction. And we also see that using the entropy of the probablity 
+vector as a proxy to uncertainty, the performance of active learning is 
+pretty bad. In this post, I want to discuss some basics of Bayesian 
+statistics. It is systematic framework to study and evaluate uncertainty
+of a system. Then, I want to show you how to bayesianify a deep learning 
+model so that it yields a more consistent notion of uncertainty.</p>
+</blockquote>
+
+<h2 id="warm-up">Warm up</h2>
+<p>Machine learning boils down to statistical inference. 
+Given a set of <em>known</em></p>
+
+<h2 id="source-of-uncertainty">Source of uncertainty</h2>
+<p>From model
+large number of possible models can explain the dataset</p>
+
+<p>From data
+Training labels are noisy
+The synthetic data in my <a href="https://hsl89.github.io/uncertainty-of-deep-neural-network/">previous post</a> has this type of uncertainty.</p>
+
+<h2 id="how-to-bayesianify">How to Bayesianify</h2>
+
+<p>Evidence that Bayesian deep model gives a better notion of uncertainty</p>
+
+:ET

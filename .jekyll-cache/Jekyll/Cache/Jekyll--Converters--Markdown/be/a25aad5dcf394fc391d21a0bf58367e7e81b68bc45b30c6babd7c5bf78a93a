@@ -1,72 +1,4 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Stream of Conscious – </title>
-
-        <meta charset="utf-8" />
-    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
-
-    
-    <meta name="description" content="">
-    <meta property="og:description" content="" />
-    
-    <meta name="author" content="Stream of Conscious" />
-
-    
-
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-        tex2jax: {
-        inlineMath: [['$','$'], ['\\(','\\)']],
-        processEscapes: true
-        }
-        });
-    </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-
-
-    <link rel="stylesheet" type="text/css" href="/style.css" />
-    <link rel="alternate" type="application/rss+xml" title="Stream of Conscious - " href="/feed.xml" />
-
-    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
-  </head>
-
-  <body>
-    <div class="wrapper-masthead">
-      <div class="container">
-        <header class="masthead clearfix">
-          <a href="/" class="site-avatar"><img src="" /></a>
-
-          <div class="site-info">
-            <h1 class="site-name"><a href="/">Stream of Conscious</a></h1>
-            <p class="site-description"></p>
-          </div>
-
-          <nav>
-            <!-- <a href="/">Blog</a> -->
-            <!-- <a href="/about">About</a> -->
-          </nav>
-        </header>
-      </div>
-    </div>
-
-    <div id="main" role="main" class="container">
-      <div class="posts">
-  
-    <article class="post">
-
-      <h1><a href="/bayesian-deep-learning/">Bayesian deep learning</a></h1>
-
-      <div class="entry">
-        <blockquote>
+I"�4<blockquote>
   <p>As we have seen from the <a href="https://hsl89.github.io/uncertainty-of-deep-neural-network/">previous post</a>. The probability vector of
 a deterministic network cannot consistently captures the uncertainty of its
 prediction. And we also see that if we use the entropy of the probablity 
@@ -216,26 +148,115 @@ because it involves many intractable integrals.
 But if $y$ is a discrete random variable, i.e. classification ML problem, 
 there are ways to get around it. Instead of looking at the posterior uncertainty,
 we can look at the predictive uncertainty because $H[y^<em>|x^</em>, D]$ is computed
-as a finite sum.</p>
+as a finite sum. In this case, we can</p>
 
-<p>In this case, the sample $(x’, y’)$ satisfies equation (1) is also the one
-that has the biggest conditional information gain:</p>
+<h2 id="bayesian-machine-learning">Bayesian Machine Learning</h2>
+<p>What is the uncertainty of a machine learning model? A machine learning
+model describes a data generation process. This process is hypthesized 
+by machines learning scientists. The uncertainty of the model really means
+the uncertainty on the hypothesis $\mathcal{H}$ about the data generation
+process which lead to the definition of the model.</p>
 
-<script type="math/tex; mode=display">\tag{2}
-I[\theta, y'|x', D] = \text{arg max}_{(x', y')} H[y'|x',D] -
-    \mathbb{E}_{\theta \sim p(\theta | D)}[H[y'|x', \theta]]</script>
+<p>Therefore, when talking about the uncertainty of the model, we are computing
+the probability of the hypothesis $\mathcal{H}$ based on observed data 
+$\mathcal{D}$</p>
 
-<p>We can interpret the samples $(x’, y’)$ with maximal conditional information
-gain as the one such that the overall predictive uncertainty is high (high 
-$H[y|x, D]$), but for each fixed element $\theta$ in $\Theta$, the 
-predictive entropy is low (low $H[y|x, \theta]$). Those are the samples
-that incurs biggest dissagreement among individual members of $\Theta$.</p>
+<script type="math/tex; mode=display">P(\mathcal{H} | \mathcal{D})</script>
 
-<p>The query strategy defined by eq (2) is called Bayesian Active Learning by
-Disagreement (BALD)</p>
+<p>This is called the <em>posterior</em> probability on $\mathcal{H}$, because it is 
+something we evaluate <em>after</em> seeing the data. According to Bayes rule, 
+we can compute the posterior by</p>
 
-<p>In the next blog, I will discuss practical implementation of BALD via
-approximate inference.</p>
+<script type="math/tex; mode=display">P(\mathcal{H} | \mathcal{D}) = \frac{P(\mathcal{D} | \mathcal{H})
+    P(\mathcal{H})}{P(\mathcal{D})}</script>
+
+<p>Let break down the formula:</p>
+
+<p>$P(\mathcal{D} | \mathcal{H})$ is the <em>likelyhood</em> of the dataset $D$,i.e.
+how likely can we see this dataset $D$ if the data generation process is
+indeed $\math{H}$</p>
+
+<p>$P(\mathcal{H})$ is the <em>prior</em> on the hypothesis $\mathcal{H}$,i.e. how
+deep we believe the data generation process is $\mathcal{H}$.</p>
+
+<p>$P(\mathcal{D})$ is called the <em>evidence</em>. It is the probablity of the 
+observation $\mathcal{D}$. One way to think about it is “the average” 
+probability of seeing the observation $\mathcal{D}$ over all hypothesis
+of data generation process</p>
+
+<script type="math/tex; mode=display">P(\mathcal{D}) = \int P(\mathcal{D} | \mathcal{H}) P(\mathcal{H}) d\mathcal{H}</script>
+
+<p>Need to define the model in the way so that $P(\mathcal{H})$? 
+That why for a Bayesian network, each neuron is a probability distribution
+rather than a deterministic number.</p>
+
+<h2 id="source-of-uncertainty">Source of uncertainty</h2>
+<p>From model
+large number of possible models can explain the dataset</p>
+
+<p>From data
+Training labels are noisy
+The synthetic data in my <a href="https://hsl89.github.io/uncertainty-of-deep-neural-network/">previous post</a> has this type of uncertainty.</p>
+
+<h2 id="how-to-bayesianify">How to Bayesianify</h2>
+
+<p>Inference</p>
+
+<script type="math/tex; mode=display">P(y=c |x^*, D) = \int p(y=c|x, w)p(w | D) dw</script>
+
+<p>Why do we want uncertain data in the inference to train the model? 
+It looks like the uncertainty is independent of the model itself?</p>
+
+<p>Evidence that Bayesian deep model gives a better notion of uncertainty</p>
+
+<h2 id="information-theoretic-active-learning-1">Information-theoretic active learning</h2>
+<p>Latent parameters $\theta$ (weights of a deep nn) that controls the dependence
+between inputs X and output Y: $p(Y | X, \theta)$</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>When data $D$ is observed, posterior $p(\theta</td>
+      <td>D)$ is computed.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Okay, data generation process can be thought as a function space $\Theta$</p>
+
+<script type="math/tex; mode=display">\text{arg min}_{D^'} =
+H[\theta | D^'] = -\int_{\Theta} p(\theta | D^')\log p(\theta | D^') d\theta</script>
+
+<p>Even we find this dataset $D’$, why it helps learning? i.e. why it improves 
+generalization error? Almost by definition, higher posterior means you are more
+certain the data generation process $\Theta$ is the true underlying process
+that relatex X to Y, i.e. better model.</p>
+
+<p>Okay, so the prior belief of data generation process is a function space $\Theta$
+together with a distribution $P(\Theta)$, such that each $p(\theta)$ indicates our
+prior belief that X and Y are related by $\theta$.</p>
+
+<p>Goal is to find a dataset $D$ that changes the posterior $p(\theta | D)$ so that 
+we have better confidence on where we should sample $\theta$ from the function 
+space $\Theta$ so that it most correctly describes the relation X and Y. Uncertainty
+of a distribution can be computed as</p>
+
+<script type="math/tex; mode=display">shannon entropy</script>
+
+<p>Therefore, the goal is to find data that reduces the uncertainty fastest.</p>
+
+<script type="math/tex; mode=display">\text{arg max}_{x} H[\theta | D] - E[H(\theta | y, x, D)]</script>
+
+<p>It is equivalent to the conditional information gain</p>
+
+<script type="math/tex; mode=display">\text{arg max}_{x} H[y|x, D] - E_{\theta \sim p(\theta | D)}[H[y|x, \theta]]</script>
+
+<p>We seek $x$ for which the model is marginally most uncertainty about $y$
+(high $H[y|x, D]$).
+but for which individual settings of the parameters are confident 
+(low $H[y|x, \theta]$). 
+This can be interpreted as seeking $x$ for which the parameters under posterior
+(trained) disagree about the output most. Refer this as BALD</p>
 
 <h2 id="reference">Reference</h2>
 <p>comparison between bayesian and frequentist
@@ -251,78 +272,4 @@ https://arxiv.org/pdf/1703.02910.pdf</p>
 <p>Classification
 https://arxiv.org/pdf/1112.5745.pdf</p>
 
-
-      </div>
-
-      <a href="/bayesian-deep-learning/" class="read-more">Read More</a>
-    </article>
-  
-    <article class="post">
-
-      <h1><a href="/knapsack/">Knapsack problem</a></h1>
-
-      <div class="entry">
-        <blockquote>
-  <p>Given a list of positive integers 
-$(x_0,…,x_n)$ and a positive integer $m$, how many non-negative integer tuples
-$(v_0,…,v_n)$ are there so that</p>
-</blockquote>
-
-<script type="math/tex; mode=display">\sum v_i x_i = m</script>
-
-
-      </div>
-
-      <a href="/knapsack/" class="read-more">Read More</a>
-    </article>
-  
-    <article class="post">
-
-      <h1><a href="/uncertainty-of-deep-neural-network/">Uncertainty of Deep Neural Network</a></h1>
-
-      <div class="entry">
-        <blockquote>
-  <p>A homo sapien learns its environment by investigating objects that it is uncertain
-about. More successful homo sapiens are generally those who push themselves
-outside their comfort zone and navigate through unfamiliar circumstances. 
-Suppose deep learning models do in some sense mimic how human brain works, then can 
-we use the success story of those donquixotic apes to train our models? 
-In this post, let’s study the notion of model’s uncertainty and use it in our training
-process</p>
-</blockquote>
-
-
-      </div>
-
-      <a href="/uncertainty-of-deep-neural-network/" class="read-more">Read More</a>
-    </article>
-  
-</div>
-
-    </div>
-
-    <div class="wrapper-footer">
-      <div class="container">
-        <footer class="footer">
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-        </footer>
-      </div>
-    </div>
-
-    
-
-  </body>
-</html>
+:ET

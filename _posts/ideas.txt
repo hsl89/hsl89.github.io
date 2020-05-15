@@ -1,0 +1,16 @@
+
+## Practical Implementation
+Ok, in the last section, we have seen that the most value samples to 
+be added to the training set under BALD is the ones that have the highest
+conditional information gain. The remaining question is how to compute
+or estimate it in practice? If you expand formula (2), you still will
+see a lot of intractable integrals. In this section, I will discussion
+Monte Carlo Dropout as an approximate inference to estimate 
+$I[\theta, y'|x', D]$. As the name suggests, it is related to the 
+dropout layer of deep neuron networks. Therefore, in this case
+our function space $\Theta$ is a deep neural network with pre-defined 
+architecture, each individal $\theta$ in $\Theta$ is one instance 
+of the network with certain weights, which we also denote as $\theta$.
+
+MC dropout estimate the predictive probability by integrating over
+the dropout distribution 
