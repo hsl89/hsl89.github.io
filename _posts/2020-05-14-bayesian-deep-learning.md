@@ -1,36 +1,40 @@
 ---
 layout: post
 comments: true
-title: Bayesian deep learning
+title: Overview of Bayesian deep learning
 date: 2020-05-14
+tags: Bayesian-deep-learning
 ---
 
-> As we have seen from the [previous post](https://hsl89.github.io/uncertainty-of-deep-neural-network/). The probability vector of
-a deterministic network cannot consistently captures the uncertainty of its
-prediction. And we also see that if we use the entropy of the probablity 
+> As we have seen from my [previous post](
+https://hsl89.github.io/uncertainty-of-deep-neural-network/).
+The probability vector of
+a deterministic network cannot consistently capture the uncertainty of its
+prediction. And we have also seen that if we use the entropy of the probablity 
 vector as a proxy to uncertainty, the performance of active learning is 
 pretty bad. In this post, I want to discuss some basics of Bayesian 
 statistics and using it to study the model uncertainty. Then we will use 
 this uncertainty to design an active learning query strategy.
 
-
+<!--more-->
 
 ## Warm up
 In supervised machine learning, the objective is to find a function
-$f$ that best describes the features $X = (x_1, x_2, \cdots, x_n)$
+$f$ that best describes the relation between
+the  features $X = (x_1, x_2, \cdots, x_n)$
 and the labels $Y = (y_1, y_2, \cdots, y_n)$. Suppose the data 
 $D = (X, Y)$ is observed from the system $S$. Then, $f$ is a proxy
 to the real data generation process of $S$ which is difficult to know.
 The criterion for a good model $f$ is that when new observations 
-$D^{\prime} = (X^{\prime}, Y^{\prime}$ arises, $f$ can still relate
-$X^{\prime}$ and $Y^{\prime}$ with good precision. 
+$D^{\prime} = (X^{\prime}, Y^{\prime})$ arises, $f$ can still relate
+$X^{\prime}$ to $Y^{\prime}$ with good precision. 
 
-Let take one step back and think about what are we doing when we build
-and train an ML model?
+Let's take one step back and think about what are we doing when building
+and training an ML model?
 There are infinitely many ways you can relate $X$ to $Y$ up to certain extent, 
 the process of building and training an ML model is amount to find an $f$
 such that *after* seeing the data $D$, we belief $f$ is the most likely 
-candidate that describe the unknown data generation process of $S$.
+candidate that describes the unknown data generation process of $S$.
 
 Formally, let $\Theta$ be the function space that describes the process of 
 $S$ that relates $X$ to $Y$, i.e. $\Theta$ is a set of all *possible* candidates
@@ -56,14 +60,14 @@ inspecting $D$
 directly from those frequency statistics. For example, you might have
 heard people talking about making *Null Hypothesis* and calculating
 $p$-value that reflects the probability that **given** Null Hypothesis
-is true, Null Hypothesis would be rejected $p*100$ times out of 100 trials 
+is true, it would be rejected $p*100$ times out of 100 trials 
 due to randomness in data collection. 
 
 
-If you prefer 1, then you are labeled as a *Bayesian statistician*;
+If you prefer 1, then you are labeled as a *Bayesian*
 If you prefer 2, then you are labeled as a *frequentist*
 
-The subtle difference between Bayesians and frequentists is that 
+The difference between Bayesians and frequentists is that 
 Bayesians want $P(H | D)$ whereas frequentists want $P(D | H)$, i.e.
 Bayesians want to know how much belief to put in the hypothesis 
 $H$ after seeing the data $D$; frequentists want to know given the 
@@ -115,14 +119,14 @@ $\Theta$. Each "fit" you do gives you the most likely candidate $\theta$ given $
 
 ## Uncertainty
 Before we jump into uncertainty in machine learning, let's ask ourselves what are
-we even uncertain about? (Pause and think)
+we even uncertain about? 
 
 I think one reasonable thing to be uncertain about is the posterior distribution
-$p(\theta | D)$ on $\Theta$. We find a posterior through marvelous machine learning,
+$p(\theta | D)$ on $\Theta$. We find a posterior through machine learning 
+(aka maximum likelyhood),
 how do we know how far it is from the true posterior?
 
 You can "compute" this uncertainty via Shannon entropy:
-
 
 $$
 H[\theta | D] = -\int_{\Theta} p(\theta | D) \log p(\theta | D) d\theta
@@ -137,7 +141,7 @@ posterior $p(\theta | D)$, the probability of $x^\*$ mapped to $y^\*=c$
 under the unknown data generation process of $S$ is given by
 
 $$
-p(y^*=c | x^*, D) = \int_{\Theta} p(y^*=c | x^*, \theta)p(\theta | D) d\theta
+p(y^* | x^*, D) = \int_{\Theta} p(y^* | x^*, \theta)p(\theta | D) d\theta
 $$
 
 If the output $y^*$ is a discrete random variable that takes on value
@@ -164,7 +168,7 @@ uncertainty of the posterior $p(\theta | D \cup \{(x', y')\})$ fastest, i.e.
 
 $$
 \tag{1}
-\text{arg max}_{x',y'} H[\theta | D] - \mathbb{E}_{y'\sim p(y'|x',D)}
+\text{arg max}_{(x',y')} H[\theta | D] - \mathbb{E}_{y'\sim p(y'|x',D)}
     (H[\theta | D'\cup {(x', y')}])
 $$
 
@@ -172,7 +176,7 @@ Of course, in practice there is no way you can evalute the above quantity,
 because it involves many intractable integrals. 
 But if $y$ is a discrete random variable, i.e. classification ML problem, 
 there are ways to get around it. Instead of looking at the posterior uncertainty,
-we can look at the predictive uncertainty because $H[y^*|x^*, D]$ is computed
+we can look at the predictive uncertainty because $H[y^\*|x^\*, D]$ is computed
 as a finite sum. 
 
 In this case, the sample $(x', y')$ satisfies equation (1) is also the one
@@ -199,19 +203,18 @@ approximate inference.
 
 
 ## Reference
-comparison between bayesian and frequentist
-https://ocw.mit.edu/courses/mathematics/18-05-introduction-to-probability-and-statistics-spring-2014/readings/MIT18_05S14_Reading20.pdf
+
+[Bayesians vs Frequentists](
+https://ocw.mit.edu/courses/mathematics/18-05-introduction-to-probability-and-statistics-spring-2014/readings/MIT18_05S14_Reading20.pdf)
 
 
-[Yarin Gal Thesis](
+[Uncertainty in Deep Learning (Yarin Gal's Thesis)](
 http://mlg.eng.cam.ac.uk/yarin/thesis/3_bayesian_deep_learning.pdf
 )
 
-https://www.mit.edu/~9.520/spring11/slides/class19_approxinf.pdf
+[Deep Bayesian Active Learning with Image Data](
+https://arxiv.org/pdf/1703.02910.pdf)
 
-Image data
-https://arxiv.org/pdf/1703.02910.pdf
-
-Classification
-https://arxiv.org/pdf/1112.5745.pdf
+[Bayesian Active Learning for Classification and Preference Learning](
+https://arxiv.org/pdf/1112.5745.pdf)
 

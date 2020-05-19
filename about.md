@@ -4,12 +4,11 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
+Hello, This is Hongshan. Welcome to my blogs about ML and algorithms. Writing blogs is a great
+way for me to digest a topic.  Hope you would enjoy "Hongshan's philosophy"
 
-### More Information
+Happy to answer questions and get feedbacks. Please post your questions/suggestions/critiques
+as an issue at the 
+[git repo](https://github.com/hsl89/hsl89.github.io) of this blog project.
 
-A place to include any other types of information that you'd like to include about yourself.
-
-### Contact me
-
-[email@domain.com](mailto:email@domain.com)
+[lihongshan8128@gmail.com](mailto:lihongshan8128@gmail.com)

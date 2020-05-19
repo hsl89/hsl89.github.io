@@ -5,6 +5,20 @@ layout: default
 <div class="posts">
   {% for post in site.posts %}
     <article class="post">
+     <li>
+         {% assign date_format = site.minima.date_format | default: "%b %-d, %Y" %}
+         <span>
+             {{ post.date | date: date_format }}
+         </span>
+
+         <span>
+             {% for tag in post.tags %}
+             {% capture tag_name %}{{ tag }}{% endcapture %}
+             <a class="post-tag" href="/tag/{{ tag_name  }}"><nobr>{{ tag_name }}</nobr>&nbsp;</a>
+
+             {% endfor %}
+         </span>
+     </li>
 
       <h1><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
 

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.name }} – {{ site.description }}</title>
 
     {% include meta.html %}
 
@@ -39,8 +38,7 @@
           </div>
 
           <nav>
-            <!-- <a href="{{ site.baseurl }}/">Blog</a> -->
-            <!-- <a href="{{ site.baseurl }}/about">About</a> -->
+              <a href="{{ site.baseurl }}/about"> About </a>
           </nav>
         </header>
       </div>
@@ -53,11 +51,9 @@
     <div class="wrapper-footer">
       <div class="container">
         <footer class="footer">
-          {% include svg-icons.html %}
+          <!-- {% include footer.html %} -->
         </footer>
       </div>
     </div>
-
-    {% include analytics.html %}
   </body>
 </html>

@@ -1,0 +1,12 @@
+I"a<blockquote>
+  <p>As we have seen from my <a href="https://hsl89.github.io/uncertainty-of-deep-neural-network/">previous post</a>.
+The probability vector of
+a deterministic network cannot consistently capture the uncertainty of its
+prediction. And we have also seen that if we use the entropy of the probablity 
+vector as a proxy to uncertainty, the performance of active learning is 
+pretty bad. In this post, I want to discuss some basics of Bayesian 
+statistics and using it to study the model uncertainty. Then we will use 
+this uncertainty to design an active learning query strategy.</p>
+</blockquote>
+
+:ET

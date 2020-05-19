@@ -3,6 +3,7 @@ layout: post
 comments: true
 title: "Uncertainty of Deep Neural Network"
 date: 2020-04-08
+tags: Deep-learning Bayesian-deep-learning
 ---
 
 > A homo sapien learns its environment by investigating objects that it is uncertain
