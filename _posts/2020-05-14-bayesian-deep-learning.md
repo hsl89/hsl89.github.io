@@ -98,24 +98,34 @@ $$
 
 If you do machine learning, then you are baptized by Bayesian
 school of thought, even if you have not heard of Bayesian statistics
-until 10 mins ago. When you do the following things
+until 10 mins ago. For example, when you do the following things
 
-```
-from sklearn.ensembles import RandomForestClassifier
-```
-or 
-```
+{% highlight py %}
 import torch.nn as nn
-```
-you are conjuring up a hypothesis $H$ about the relation between $X$ and $Y$,
-a function space $\Theta$ that describes the relation between $X$ and $Y$ and
-a *prior* probability distribution $p(\theta)$ on $\Theta$. Except intead of
-looking at all possible functions, you are looking at functions that look like
-a random forest in case 1, a neural network in case 2.
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.layer1 = nn.Linear(10, 128)
+        self.layer2 = nn.Linear(128, 2)
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x = F.relu(x)
+        return self.layer2(x)
+{% endhighlight %}
+
+you are defining $\Theta$ as the set such that each of its member looks like
+a two-layer neuron network with ReLU activation. The prior distribution 
+you put on $\Theta$ is the joint distribution you put on each neuron. 
+If you believe each neuron follows a Gaussian distribution
+with mean 0 and standard deviation 1, then the prior on $\Theta$ is the joint
+distribution of $10\times 128 \times 2$ Gaussians with mean 0 and standard 
+deviation 1.
 
 When you train your model, you are updating your posterior $P(\theta | D)$ on 
 $\Theta$. Each "fit" you do gives you the most likely candidate $\theta$ given $D$.
-
 
 ## Uncertainty
 Before we jump into uncertainty in machine learning, let's ask ourselves what are

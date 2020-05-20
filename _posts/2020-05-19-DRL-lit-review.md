@@ -9,6 +9,7 @@ tags: Deep-learning Reinforcement-learning
 > I want to know what's going on in the DRL community. That's why I am doing this lit
 review.
 
+<!--more-->
 
 ## Rainbow: Combining Improvements in Deep Reinforcement Learning
 [paper is here](https://arxiv.org/pdf/1710.02298.pdf)
@@ -26,7 +27,7 @@ updating the value function acccording to
 
 $$
 \tag{1}
-(R_{t+1} + \gamma_{t+1} \text{max}\limits_{a^{\prime}} q_{\bar{\theta}} 
+(R_{t+1} + \gamma_{t+1} \text{max}  q_{\bar{\theta}} 
     (S_{t+1}, a^{\prime}) - q_{\theta}(S_t, A_t))^2
 $$
 
@@ -48,17 +49,16 @@ A theorem that estabilishes the theoretical fundation of the overestimation
 bias is the following
 
 Theorem 1 in [Double Q-Learning paper](https://arxiv.org/pdf/1509.06461.pdf)
-* Consider a state in which all the true optimal action values are equal
-at $Q_\*(s, a) = V_*(s)$ for some $V_\*(s)$. Let $Q_t$ be arbitrary value 
+
+*Consider a state in which all the true optimal action values are equal
+at $Q_\*(s, a) = V_\*(s)$ for some $V_\*(s)$. Let $Q_t$ be arbitrary value 
 estimates that are on the whole unbiased, i.e. 
-$ \sum_a (Q_t(s, a)  - V_*(s)) = 0$, that that are not all correct, such
-that $ \frac{1}{m} \sum_a (Q_t(s, a) - V_*(s))^2 = C$ for some $C > 0$,
+$ \sum_a (Q_t(s, a)  - V_\*(s)) = 0$, that that are not all correct, such
+that $ \frac{1}{m} \sum_a (Q_t(s, a) - V_\*(s))^2 = C$ for some $C > 0$,
 where $m >= 2$ is the number of actions in $s$. Under these conditions,
-
 $$
-\text{max}_a Q_t(s, a) >= V_\*(s) + \sqrt(\frac{C}{m-1})
+\text{max}_a Q_t(s, a) \ge V_*(s) + \sqrt{\frac{C}{m-1}}
 $$
-
 The lower bound is tight. Under the same condition, the lower bound on 
 the aboslute error of Double Q-Learning esitimate is 0*
 
@@ -100,4 +100,4 @@ Why Double Q-learning removes overestimation bias,
 No clue, will investigate latter.
 
 
-jjjj
+
