@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+    
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Techniques to estimate the expected log likelihood
+
+
+
+Monte Carlo Estimator in variational inference
+
+We wish to estimate the derivatives of the expected
+log likelihood with respect to $\theta$. This allows
+us to optimize the objective for the variational inference.
+
+Consider in general
+
+
+
+The score function estimator
+Assume we can do differentiating outside integral side
+
+
+
+This leads to an unbiased stochastic estimator
+
+
+
+with $x \sim p_{\theta}(x)$, i.e. sample a few $x$ from 
+$p_{\theta}(x)$, we can use it to estimate $I(\theta)$
+
+" />
+    <meta property="og:description" content="Techniques to estimate the expected log likelihood
+
+
+
+Monte Carlo Estimator in variational inference
+
+We wish to estimate the derivatives of the expected
+log likelihood with respect to $\theta$. This allows
+us to optimize the objective for the variational inference.
+
+Consider in general
+
+
+
+The score function estimator
+Assume we can do differentiating outside integral side
+
+
+
+This leads to an unbiased stochastic estimator
+
+
+
+with $x \sim p_{\theta}(x)$, i.e. sample a few $x$ from 
+$p_{\theta}(x)$, we can use it to estimate $I(\theta)$
+
+" />
+    
+    <meta name="author" content="Stream of Conscious" />
+
+    
+    <meta property="og:title" content="Notes from Yarin Gal's Thesis" />
+    <meta property="twitter:title" content="Notes from Yarin Gal's Thesis" />
+    
+
+
+<!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+    }
+    });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+
+
+<link rel="stylesheet" type="text/css" href="/style.css" />
+<link rel="alternate" type="application/rss+xml" title="Stream of Conscious - " href="/feed.xml" />
+
+
+    
+
+
+
+
+
+
+
+
+<!-- Google Analytics -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-8161570-6', 'auto');
+    ga('send', 'pageview');
+</script>
+
+<!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+</head>
+
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Stream of Conscious</a></h1>
+            <p class="site-description"></p>
+          </div>
+
+          <nav>
+              <a href="/about"> About </a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Notes from Yarin Gal&#39;s Thesis</h1>
+    <p class="post-meta">
+
+      <time datetime="2020-05-20T19:55:46-07:00" itemprop="datePublished">
+        
+        May 20, 2020
+      </time>
+
+      <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+        by <span itemprop="name">Hongshan Li</span>
+      </span>
+        
+      <span>[
+      
+    ]</span>
+
+      <!--
+      <span class="share-buttons">
+        <span class="share-button"><a class="twitter-share-button" href="https://twitter.com/share" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></span>
+
+        <span class="share-button"><span class="fb-like" data-href="/example/" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></span></span>
+      </span>
+      <div style="clear: both;"/>
+      -->
+
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="techniques-to-estimate-the-expected-log-likelihood">Techniques to estimate the expected log likelihood</h2>
+
+<script type="math/tex; mode=display">\int q_{\theta} \log p(y_i | f^w(x_i)) dw</script>
+
+<h3 id="monte-carlo-estimator-in-variational-inference">Monte Carlo Estimator in variational inference</h3>
+
+<p>We wish to estimate the derivatives of the expected
+log likelihood with respect to $\theta$. This allows
+us to optimize the objective for the variational inference.</p>
+
+<p>Consider in general</p>
+
+<script type="math/tex; mode=display">I(\theta) = \frac{\partial}{\partial\theta}
+\int f(x) p_{\theta}(x) dx</script>
+
+<h4 id="the-score-function-estimator">The score function estimator</h4>
+<p>Assume we can do differentiating outside integral side</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\frac{\partial}{\partial\theta}
+\int f(x) p_{\theta}(x) dx & = 
+\int f(x) \frac{\partial}{\partial\theta} p_{\theta}(x) dx \\
+& \int f(x) \frac{\partial \log p_{\theta}(x)}{\partial\theta} 
+p_{\theta}(x) dx
+\end{align} %]]></script>
+
+<p>This leads to an unbiased stochastic estimator</p>
+
+<script type="math/tex; mode=display">\hat{I}_1(\theta) = f(x)\frac{\partial \log p_{\theta}(x)}{\partial\theta}</script>
+
+<p>with $x \sim p_{\theta}(x)$, i.e. sample a few $x$ from 
+$p_{\theta}(x)$, we can use it to estimate $I(\theta)$</p>
+
+
+  </div>
+
+
+  <div class="page-navigation">
+    
+      <a class="prev" href="/bayesian-deep-learning/">&larr; Overview of Bayesian deep learning</a>
+    
+
+    
+  </div>
+
+  
+
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          <!--   
+<div style="clear: both;"/>
+<footer class="site-footer">
+    <p>
+    Add stuff to footer
+    </p>
+</footer>
+ -->
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>

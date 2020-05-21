@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-18T18:03:13-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Stream of Conscious</title><author><name>Hongshan Li</name></author><entry><title type="html">Overview of Bayesian deep learning</title><link href="http://localhost:4000/bayesian-deep-learning/" rel="alternate" type="text/html" title="Overview of Bayesian deep learning" /><published>2020-05-14T00:00:00-07:00</published><updated>2020-05-14T00:00:00-07:00</updated><id>http://localhost:4000/bayesian-deep-learning</id><content type="html" xml:base="http://localhost:4000/bayesian-deep-learning/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-20T19:55:46-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Stream of Conscious</title><author><name>Hongshan Li</name></author><entry><title type="html">Overview of Bayesian deep learning</title><link href="http://localhost:4000/bayesian-deep-learning/" rel="alternate" type="text/html" title="Overview of Bayesian deep learning" /><published>2020-05-14T00:00:00-07:00</published><updated>2020-05-14T00:00:00-07:00</updated><id>http://localhost:4000/bayesian-deep-learning</id><content type="html" xml:base="http://localhost:4000/bayesian-deep-learning/">&lt;blockquote&gt;
   &lt;p&gt;As we have seen from my &lt;a href=&quot;https://hsl89.github.io/uncertainty-of-deep-neural-network/&quot;&gt;previous post&lt;/a&gt;.
 The probability vector of
 a deterministic network cannot consistently capture the uncertainty of its
@@ -171,8 +171,73 @@ that incurs biggest dissagreement among individual members of $\Theta$.&lt;/p&gt
 &lt;p&gt;The query strategy defined by eq (2) is called Bayesian Active Learning by
 Disagreement (BALD)&lt;/p&gt;
 
-&lt;p&gt;In the next blog, I will discuss practical implementation of BALD via
-approximate inference.&lt;/p&gt;
+&lt;h2 id=&quot;implementation&quot;&gt;Implementation&lt;/h2&gt;
+&lt;p&gt;BALD looks reasonable, but one still need to solve many intractable integrals
+to compute it. In practice, how do we estimate it? In this section, 
+I will discuss practical implementation of BALD via approximate inference.&lt;/p&gt;
+
+&lt;p&gt;Stochastic model regularization&lt;/p&gt;
+
+&lt;p&gt;The technique adapts the model output stochastically as a way of model regularization.
+This results in the loss becoming a random quantity, which is optimized
+using tools from the stochastic non-convex optimization literature.&lt;/p&gt;
+
+&lt;p&gt;dropout &lt;a href=&quot;hinton paper&quot;&gt;Hinton et al, 2012&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;mutiplicative Gaussian noise &lt;a href=&quot;Srivastava&quot;&gt;Srivastava et al, 2014&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;dropConnect &lt;a href=&quot;wen&quot;&gt;Wen et al., 2013&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Given a model trained with SRT, given some input $(x^*, y^*)$ 
+we can obtain an empirical estimate of predictive mean 
+$\mathbb{E}[y^*]$ and predictive variance $\text{Var}[y^*]$ (confidence).
+Simulate network output with input $x^*$ and use SRT as if we were using 
+the model for training. Repeat this process several times and obtain 
+${\hat{y}_1(x^*),\cdots, \hat{y}_T(x^*)}$. Those are empirical samples
+from an &lt;em&gt;approximate predictive distribution&lt;/em&gt;&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{align}
+\mathbb{E}[y^*] &amp; \sim \frac{1}{T}\sum\limits_{t=1}^T \hat{y}_t(x^*) \\
+
+\text{Var}[y^*] &amp; \sim \tau^{-1}I\_{D} + \frac{1}{T} \sum\limits_{t=1}^T 
+    \hat{y}^*_t(x^*)^T \hat{y}^*_t(x^*) -
+    \mathbb{E}[y^*]^T \mathbb{E}[y^*]
+\end{align} %]]&gt;&lt;/script&gt;
+
+&lt;h2 id=&quot;evidence-of-lower-bound&quot;&gt;Evidence of lower bound&lt;/h2&gt;
+&lt;p&gt;Given some paramters $w$, want to approximate the posterior distribution
+$p(w|X, Y)$. Posterior is difficult to find, so instead we construct a 
+family of ‘easier’ distribution $q_{\theta}(w)$ parameterized by $\theta$. 
+Variational distribution $q_{\theta}(w)$ paramterized by $\theta$, i.e.
+it is a family of distributions 
+&lt;script type=&quot;math/tex&quot;&gt;\begin{align}
+\text{KL}(q_{\theta}(w) || p(w|X, Y)) = 
+   \int q\log q - \int q \log (p(Y|X, w)p(w)) dw + \log p(Y|X)
+\end{align}&lt;/script&gt;&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{align}
+L &amp; = \log p(Y|X) - \text{KL}(q_{\theta}(w) || p(w|X, Y)) \\
+ &amp; = \int q \log p(Y|X, w)p(w) dw - \int q \log q dw
+\end{align} %]]&gt;&lt;/script&gt;
+
+&lt;p&gt;$L$ is called the &lt;em&gt;evidence of lower bound&lt;/em&gt;, minimizing 
+$\text{KL}(q_{\theta}(w) || p(w|X, Y))$ is equivalent as 
+maximizing $L$&lt;/p&gt;
+
+&lt;p&gt;$L$ can be rewritten as&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{align}
+L &amp; = \int q \log (p(Y|X, w)) dw + \int q\log p(w) - q \log q dw \\
+    &amp; = \int q \log p(Y|X, w) dw - \text{KL}(q || p(w))
+\end{align} %]]&gt;&lt;/script&gt;
+
+&lt;p&gt;Minimizing $L$ is easier because it does not have require direct access
+to the posterior.&lt;/p&gt;
+
+&lt;p&gt;This procedure is called variational inference (VI)&lt;/p&gt;
 
 &lt;h2 id=&quot;reference&quot;&gt;Reference&lt;/h2&gt;
 

@@ -197,9 +197,79 @@ that incurs biggest dissagreement among individual members of $\Theta$.
 The query strategy defined by eq (2) is called Bayesian Active Learning by
 Disagreement (BALD)
 
-In the next blog, I will discuss practical implementation of BALD via
-approximate inference.
 
+## Implementation
+BALD looks reasonable, but one still need to solve many intractable integrals
+to compute it. In practice, how do we estimate it? In this section, 
+I will discuss practical implementation of BALD via approximate inference.
+
+Stochastic model regularization
+
+The technique adapts the model output stochastically as a way of model regularization.
+This results in the loss becoming a random quantity, which is optimized
+using tools from the stochastic non-convex optimization literature. 
+
+dropout [Hinton et al, 2012](hinton paper)
+
+mutiplicative Gaussian noise [Srivastava et al, 2014](Srivastava)
+
+dropConnect [Wen et al., 2013](wen)
+
+Given a model trained with SRT, given some input $(x^\*, y^\*)$ 
+we can obtain an empirical estimate of predictive mean 
+$\mathbb{E}[y^\*]$ and predictive variance $\text{Var}[y^\*]$ (confidence).
+Simulate network output with input $x^\*$ and use SRT as if we were using 
+the model for training. Repeat this process several times and obtain 
+$\{\hat{y}\_1(x^\*),\cdots, \hat{y}\_T(x^\*)\}$. Those are empirical samples
+from an *approximate predictive distribution* 
+
+$$
+\begin{align}
+\mathbb{E}[y^*] & \sim \frac{1}{T}\sum\limits_{t=1}^T \hat{y}_t(x^*) \\
+
+\text{Var}[y^*] & \sim \tau^{-1}I\_{D} + \frac{1}{T} \sum\limits_{t=1}^T 
+    \hat{y}^*_t(x^*)^T \hat{y}^*_t(x^*) -
+    \mathbb{E}[y^*]^T \mathbb{E}[y^*]
+\end{align}
+$$
+
+## Evidence of lower bound
+Given some paramters $w$, want to approximate the posterior distribution
+$p(w|X, Y)$. Posterior is difficult to find, so instead we construct a 
+family of 'easier' distribution $q_{\theta}(w)$ parameterized by $\theta$. 
+Variational distribution $q_{\theta}(w)$ paramterized by $\theta$, i.e.
+it is a family of distributions 
+$$
+\begin{align}
+\text{KL}(q_{\theta}(w) || p(w|X, Y)) = 
+   \int q\log q - \int q \log (p(Y|X, w)p(w)) dw + \log p(Y|X)
+\end{align}
+$$
+
+$$
+\begin{align}
+L & = \log p(Y|X) - \text{KL}(q_{\theta}(w) || p(w|X, Y)) \\
+ & = \int q \log p(Y|X, w)p(w) dw - \int q \log q dw
+\end{align}
+$$
+
+$L$ is called the *evidence of lower bound*, minimizing 
+$\text{KL}(q_{\theta}(w) || p(w|X, Y))$ is equivalent as 
+maximizing $L$
+
+$L$ can be rewritten as
+
+$$
+\begin{align}
+L & = \int q \log (p(Y|X, w)) dw + \int q\log p(w) - q \log q dw \\
+    & = \int q \log p(Y|X, w) dw - \text{KL}(q || p(w))
+\end{align}
+$$
+
+Minimizing $L$ is easier because it does not have require direct access
+to the posterior. 
+
+This procedure is called variational inference (VI)
 
 
 ## Reference
