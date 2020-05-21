@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+    
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="
+  I want to know what’s going on in the DRL community. That’s why I am doing this lit
+review.
+
+
+" />
+    <meta property="og:description" content="
+  I want to know what’s going on in the DRL community. That’s why I am doing this lit
+review.
+
+
+" />
+    
+    <meta name="author" content="Stream of Conscious" />
+
+    
+    <meta property="og:title" content="Not-So-formal Lit Review of Recent Progress in Deep Reinforcement Learning" />
+    <meta property="twitter:title" content="Not-So-formal Lit Review of Recent Progress in Deep Reinforcement Learning" />
+    
+
+
+<!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+    }
+    });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+
+
+<link rel="stylesheet" type="text/css" href="/style.css" />
+<link rel="alternate" type="application/rss+xml" title="Stream of Conscious - " href="/feed.xml" />
+
+
+    
+
+
+
+
+
+
+
+
+<!-- Google Analytics -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-8161570-6', 'auto');
+    ga('send', 'pageview');
+</script>
+
+<!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+</head>
+
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Stream of Conscious</a></h1>
+            <p class="site-description"></p>
+          </div>
+
+          <nav>
+              <a href="/about"> About </a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Not-So-formal Lit Review of Recent Progress in Deep Reinforcement Learning</h1>
+    <p class="post-meta">
+
+      <time datetime="2020-05-19T00:00:00-07:00" itemprop="datePublished">
+        
+        May 19, 2020
+      </time>
+
+      <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+        by <span itemprop="name">Hongshan Li</span>
+      </span>
+        
+      <span>[
+      
+        
+        <a href="/tag/Deep-learning"><code class="highligher-rouge"><nobr>Deep-learning</nobr></code>&nbsp;</a>
+  
+        
+        <a href="/tag/Reinforcement-learning"><code class="highligher-rouge"><nobr>Reinforcement-learning</nobr></code>&nbsp;</a>
+  
+    ]</span>
+
+      <!--
+      <span class="share-buttons">
+        <span class="share-button"><a class="twitter-share-button" href="https://twitter.com/share" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></span>
+
+        <span class="share-button"><span class="fb-like" data-href="/DRL-lit-review/" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></span></span>
+      </span>
+      <div style="clear: both;"/>
+      -->
+
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <blockquote>
+  <p>I want to know what’s going on in the DRL community. That’s why I am doing this lit
+review.</p>
+</blockquote>
+
+<!--more-->
+
+<h2 id="rainbow-combining-improvements-in-deep-reinforcement-learning">Rainbow: Combining Improvements in Deep Reinforcement Learning</h2>
+<p><a href="https://arxiv.org/pdf/1710.02298.pdf">paper is here</a>
+This is a good entry-point, because the authors in this paper combines various 
+improvements of deep Q-learning into one coherent system. They argued that the 
+independent improvements (as extensions of DQL) are indeed complementary. 
+Here are a list of improvements they combined:</p>
+
+<h3 id="double-q-learning">Double Q-learning</h3>
+<p><a href="link">van Hasslt 2010</a> <a href="https://arxiv.org/pdf/1509.06461.pdf">van Hasselt, Guez, and Silver 2016</a></p>
+
+<p>In this algo, the authors addresses the <em>overestimation</em> problem when 
+updating the value function acccording to</p>
+
+<script type="math/tex; mode=display">\tag{1}
+(R_{t+1} + \gamma_{t+1} \text{max}  q_{\bar{\theta}} 
+    (S_{t+1}, a^{\prime}) - q_{\theta}(S_t, A_t))^2</script>
+
+<p>$\theta$ is the parameters of the <em>online net</em>, the one that evaluates
+the states and actions. 
+Action at each time step is selected based on the estimate
+of $\theta$. $\bar{\theta}$ is the paramters of the <em>target net</em>. It is
+the one that is periodically updated by the parameters of $\theta$. 
+Using a target net makes training more stable. The optimization algorithm
+is RMSprop.</p>
+
+<p><em>Question: why RMSprop is a reasonable optimizer here?</em>
+No clue, will investigate later.</p>
+
+<p>What is an overestimation bias?
+It is the error that comes from taking the best action in Eq (1)</p>
+
+<p>A theorem that estabilishes the theoretical fundation of the overestimation
+bias is the following</p>
+
+<p>Theorem 1 in <a href="https://arxiv.org/pdf/1509.06461.pdf">Double Q-Learning paper</a></p>
+
+<p><em>Consider a state in which all the true optimal action values are equal
+at $Q_*(s, a) = V_*(s)$ for some $V_*(s)$. Let $Q_t$ be arbitrary value 
+estimates that are on the whole unbiased, i.e. 
+$ \sum_a (Q_t(s, a)  - V_*(s)) = 0$, that that are not all correct, such
+that $ \frac{1}{m} \sum_a (Q_t(s, a) - V_*(s))^2 = C$ for some $C &gt; 0$,
+where $m &gt;= 2$ is the number of actions in $s$. Under these conditions,
+<script type="math/tex">\text{max}_a Q_t(s, a) \ge V_*(s) + \sqrt{\frac{C}{m-1}}</script>
+The lower bound is tight. Under the same condition, the lower bound on 
+the aboslute error of Double Q-Learning esitimate is 0</em></p>
+
+<p>Ok, what this theorem say? It says, the traditional Q-learning incurs 
+a bias of at least $\sqrt{\frac{C}{m-1}}$, whereas the Double Q-learning
+does not incur any bias.</p>
+
+<p>Ok, so what is Double Q-Learning and why it does not incur overestimation
+bias?</p>
+
+<p>The target of Q-Learning is</p>
+
+<script type="math/tex; mode=display">Y^Q_t = R_{t+1} + \gamma \max_a Q(S_{t+1}, a; \theta_t)</script>
+
+<p>which can be rewritten as</p>
+
+<script type="math/tex; mode=display">Y^Q_t = R_{t+1} + \gamma Q(S_{t+1}, \text{argmax}_a Q(S_{t+1},a;\theta_t); 
+    \theta_t)</script>
+
+<p>The target of Double Q-Learning is</p>
+
+<script type="math/tex; mode=display">Y^{DoubleQ}_t = R_{t+1} + \gamma 
+Q(S_{t+1}, \text{argmax}_a Q(S_{t+1}, a; \theta_t); \theta^{\prime}_t)</script>
+
+<p>The loss of objective is</p>
+
+<script type="math/tex; mode=display">(R_{t+1} + \gamma q_{\bar{\theta}}(S_{t+1}, \text{argmax}_{a^{\prime}} 
+    q_{\theta}(S_{t+1}, a^{\prime})) - q_{\theta}(S_t, A_t))^2</script>
+
+<p>Why Double Q-learning removes overestimation bias,
+No clue, will investigate latter.</p>
+
+
+  </div>
+
+
+  <div class="page-navigation">
+    
+      <a class="prev" href="/bayesian-deep-learning/">&larr; Overview of Bayesian deep learning</a>
+    
+
+    
+  </div>
+
+  
+    
+
+  
+
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          <!--   
+<div style="clear: both;"/>
+<footer class="site-footer">
+    <p>
+    Add stuff to footer
+    </p>
+</footer>
+ -->
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>

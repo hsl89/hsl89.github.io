@@ -1,4 +1,84 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-18T18:03:13-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Stream of Conscious</title><author><name>Hongshan Li</name></author><entry><title type="html">Overview of Bayesian deep learning</title><link href="http://localhost:4000/bayesian-deep-learning/" rel="alternate" type="text/html" title="Overview of Bayesian deep learning" /><published>2020-05-14T00:00:00-07:00</published><updated>2020-05-14T00:00:00-07:00</updated><id>http://localhost:4000/bayesian-deep-learning</id><content type="html" xml:base="http://localhost:4000/bayesian-deep-learning/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-21T11:33:56-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Stream of Conscious</title><author><name>Hongshan Li</name></author><entry><title type="html">Not-So-formal Lit Review of Recent Progress in Deep Reinforcement Learning</title><link href="http://localhost:4000/DRL-lit-review/" rel="alternate" type="text/html" title="Not-So-formal Lit Review of Recent Progress in Deep Reinforcement Learning" /><published>2020-05-19T00:00:00-07:00</published><updated>2020-05-19T00:00:00-07:00</updated><id>http://localhost:4000/DRL-lit-review</id><content type="html" xml:base="http://localhost:4000/DRL-lit-review/">&lt;blockquote&gt;
+  &lt;p&gt;I want to know what’s going on in the DRL community. That’s why I am doing this lit
+review.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;rainbow-combining-improvements-in-deep-reinforcement-learning&quot;&gt;Rainbow: Combining Improvements in Deep Reinforcement Learning&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://arxiv.org/pdf/1710.02298.pdf&quot;&gt;paper is here&lt;/a&gt;
+This is a good entry-point, because the authors in this paper combines various 
+improvements of deep Q-learning into one coherent system. They argued that the 
+independent improvements (as extensions of DQL) are indeed complementary. 
+Here are a list of improvements they combined:&lt;/p&gt;
+
+&lt;h3 id=&quot;double-q-learning&quot;&gt;Double Q-learning&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;link&quot;&gt;van Hasslt 2010&lt;/a&gt; &lt;a href=&quot;https://arxiv.org/pdf/1509.06461.pdf&quot;&gt;van Hasselt, Guez, and Silver 2016&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;In this algo, the authors addresses the &lt;em&gt;overestimation&lt;/em&gt; problem when 
+updating the value function acccording to&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\tag{1}
+(R_{t+1} + \gamma_{t+1} \text{max}  q_{\bar{\theta}} 
+    (S_{t+1}, a^{\prime}) - q_{\theta}(S_t, A_t))^2&lt;/script&gt;
+
+&lt;p&gt;$\theta$ is the parameters of the &lt;em&gt;online net&lt;/em&gt;, the one that evaluates
+the states and actions. 
+Action at each time step is selected based on the estimate
+of $\theta$. $\bar{\theta}$ is the paramters of the &lt;em&gt;target net&lt;/em&gt;. It is
+the one that is periodically updated by the parameters of $\theta$. 
+Using a target net makes training more stable. The optimization algorithm
+is RMSprop.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Question: why RMSprop is a reasonable optimizer here?&lt;/em&gt;
+No clue, will investigate later.&lt;/p&gt;
+
+&lt;p&gt;What is an overestimation bias?
+It is the error that comes from taking the best action in Eq (1)&lt;/p&gt;
+
+&lt;p&gt;A theorem that estabilishes the theoretical fundation of the overestimation
+bias is the following&lt;/p&gt;
+
+&lt;p&gt;Theorem 1 in &lt;a href=&quot;https://arxiv.org/pdf/1509.06461.pdf&quot;&gt;Double Q-Learning paper&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Consider a state in which all the true optimal action values are equal
+at $Q_*(s, a) = V_*(s)$ for some $V_*(s)$. Let $Q_t$ be arbitrary value 
+estimates that are on the whole unbiased, i.e. 
+$ \sum_a (Q_t(s, a)  - V_*(s)) = 0$, that that are not all correct, such
+that $ \frac{1}{m} \sum_a (Q_t(s, a) - V_*(s))^2 = C$ for some $C &amp;gt; 0$,
+where $m &amp;gt;= 2$ is the number of actions in $s$. Under these conditions,
+&lt;script type=&quot;math/tex&quot;&gt;\text{max}_a Q_t(s, a) \ge V_*(s) + \sqrt{\frac{C}{m-1}}&lt;/script&gt;
+The lower bound is tight. Under the same condition, the lower bound on 
+the aboslute error of Double Q-Learning esitimate is 0&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Ok, what this theorem say? It says, the traditional Q-learning incurs 
+a bias of at least $\sqrt{\frac{C}{m-1}}$, whereas the Double Q-learning
+does not incur any bias.&lt;/p&gt;
+
+&lt;p&gt;Ok, so what is Double Q-Learning and why it does not incur overestimation
+bias?&lt;/p&gt;
+
+&lt;p&gt;The target of Q-Learning is&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y^Q_t = R_{t+1} + \gamma \max_a Q(S_{t+1}, a; \theta_t)&lt;/script&gt;
+
+&lt;p&gt;which can be rewritten as&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y^Q_t = R_{t+1} + \gamma Q(S_{t+1}, \text{argmax}_a Q(S_{t+1},a;\theta_t); 
+    \theta_t)&lt;/script&gt;
+
+&lt;p&gt;The target of Double Q-Learning is&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y^{DoubleQ}_t = R_{t+1} + \gamma 
+Q(S_{t+1}, \text{argmax}_a Q(S_{t+1}, a; \theta_t); \theta^{\prime}_t)&lt;/script&gt;
+
+&lt;p&gt;The loss of objective is&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;(R_{t+1} + \gamma q_{\bar{\theta}}(S_{t+1}, \text{argmax}_{a^{\prime}} 
+    q_{\theta}(S_{t+1}, a^{\prime})) - q_{\theta}(S_t, A_t))^2&lt;/script&gt;
+
+&lt;p&gt;Why Double Q-learning removes overestimation bias,
+No clue, will investigate latter.&lt;/p&gt;</content><author><name>Hongshan Li</name></author><category term="Deep-learning" /><category term="Reinforcement-learning" /><summary type="html">I want to know what’s going on in the DRL community. That’s why I am doing this lit review.</summary></entry><entry><title type="html">Overview of Bayesian deep learning</title><link href="http://localhost:4000/bayesian-deep-learning/" rel="alternate" type="text/html" title="Overview of Bayesian deep learning" /><published>2020-05-14T00:00:00-07:00</published><updated>2020-05-14T00:00:00-07:00</updated><id>http://localhost:4000/bayesian-deep-learning</id><content type="html" xml:base="http://localhost:4000/bayesian-deep-learning/">&lt;blockquote&gt;
   &lt;p&gt;As we have seen from my &lt;a href=&quot;https://hsl89.github.io/uncertainty-of-deep-neural-network/&quot;&gt;previous post&lt;/a&gt;.
 The probability vector of
 a deterministic network cannot consistently capture the uncertainty of its
@@ -85,18 +165,29 @@ of data generation process:&lt;/p&gt;
 
 &lt;p&gt;If you do machine learning, then you are baptized by Bayesian
 school of thought, even if you have not heard of Bayesian statistics
-until 10 mins ago. When you do the following things&lt;/p&gt;
+until 10 mins ago. For example, when you do the following things&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;from sklearn.ensembles import RandomForestClassifier
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;p&gt;or&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;import torch.nn as nn
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;p&gt;you are conjuring up a hypothesis $H$ about the relation between $X$ and $Y$,
-a function space $\Theta$ that describes the relation between $X$ and $Y$ and
-a &lt;em&gt;prior&lt;/em&gt; probability distribution $p(\theta)$ on $\Theta$. Except intead of
-looking at all possible functions, you are looking at functions that look like
-a random forest in case 1, a neural network in case 2.&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-py&quot; data-lang=&quot;py&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;torch.nn&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;torch.nn.functional&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;F&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Linear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;128&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Linear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;128&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;forward&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;F&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;relu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;you are defining $\Theta$ as the set such that each of its member looks like
+a two-layer neuron network with ReLU activation. The prior distribution 
+you put on $\Theta$ is the joint distribution you put on each neuron. 
+If you believe each neuron follows a Gaussian distribution
+with mean 0 and standard deviation 1, then the prior on $\Theta$ is the joint
+distribution of $10\times 128 \times 2$ Gaussians with mean 0 and standard 
+deviation 1.&lt;/p&gt;
 
 &lt;p&gt;When you train your model, you are updating your posterior $P(\theta | D)$ on 
 $\Theta$. Each “fit” you do gives you the most likely candidate $\theta$ given $D$.&lt;/p&gt;
