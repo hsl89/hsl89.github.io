@@ -10,7 +10,19 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
 
     
-    <meta name="description" content="Techniques to estimate the expected log likelihood
+    <meta name="description" content="Central theme:
+Optimizing any deterministic NN with dropout is equivalent to 
+a form of approximate inference in a probabilistic interpretation
+of the model. This means the optimal weights found through the optimization
+of a dropout NN are the same as the optimal variational parameters
+in a Bayesian NN with the same structure.
+
+Why do we call the paramters in a Bayesian NN a variational parameter?
+
+want to find $q(w)$ that is close to the model’s posterior $p(w|X, Y)$ 
+what is $\theta$ in relation to the weight parameters to Bayesian NN?
+
+Techniques to estimate the expected log likelihood
 
 
 
@@ -54,10 +66,82 @@ estimator
 
 
 
-such that $\mathbb{E}{S, \epsilon}(\hat{L}{MC}(\theta)) = \hat{L}_{VI}(\theta)$
+such that 
 
-Therefore the SGD algorithm for minimizing $q_{\theta}(w)$ and $p(w|X, Y)$
-is
+
+  
+    
+      Therefore the SGD algorithm for minimizing  and $$p(w
+      X, Y)$$
+    
+  
+
+
+
+  Given dataset X, Y
+Define learning rate $\eta$
+Initialize parameters $\theta$ randomly
+
+
+While $\theta$ has not converged
+
+  
+    Sample $M$ random variables $\hat{\epsilon}\sim p(\epsilon)$, $S$ a random 
+subset of ${1, \dots, N}$ of size $M$
+Calculate Stochastic derivative estimator w.r.t. $\theta$:
+  
+
+
+
+
+
+  
+    Update $\theta$:
+  
+
+
+
+
+Let’s take a look at its relation with some stochastic regularization techniques.
+The most popular SRT is dropout Suppose each input feature is used with 
+probability $p$. Suppose the model has $N$ parameters, then dropout produces
+$2^N$ ‘thinned’ networks. At inference time, we want the expected prediction
+from those $2^N$ models, so we scale each weights by $p$ Hinton et al
+
+SRT injects noise on the feature space. In Bayesian NNs, the uncertainty 
+comes from model parameters. It is easy to transform noise from features
+to the model paramters. Suppose masks for features are $\epsilon_1, \epsilon_2$
+and parameters are
+$\theta = {M_1, M_2, b}$
+
+Then, the model is equivalent to stochastic paramters
+$\hat{\theta} = { diag(\epsilon_1)M_1, diag(\epsilon_2)M_2 } $
+
+Then we can write the optimization objective as
+
+
+
+with $\hat{W}^i_1$ and $\hat{W}^i_2$ corresponding to new masks $\hat{\epsilon}^i_1$
+and $\hat{\epsilon}^i_2$ sampled for data point $i$.
+
+For regression problem, minimizing MSL is equivalent to maximizing log 
+likelihood
+
+
+where $p(y| f^{M_1, M_2, b}(x)) = N(y; f^{M_1, M_2, b}(x), \tau^{-1}I) $
+
+$\hat{w} = {\hat{W}^i_1, \hat{W}^i_2, b } =: g(\theta, \hat{\epsilon}_i)$ 
+$p(\epsilon)$ is the product of Bernoulli distributions with probability
+$p_i$ (the probability the neuron is not turned off).
+
+So the loss objective is
+
+
+
+This optimization objective is same to that of approximate inference
+if in $\hat{L}_{MC}$ we choose the prior $p(w)$ in the way so that
+
+
 
 If weights are trained with probability $p$, i.e. each weight has a 
 probability $p$ to be turned on. Then, in the test time, we want
@@ -67,12 +151,33 @@ multiply each weights by $p$.
 Optimising any neural network with dropout is equivalent to a form
 of approximate inference in a probabilistic interpretation of the 
 model.
+
+Model uncertainty in Bayesian neural networks
+
+variance ratio
+predictive entropy
+information gain
+
+Some difficulties with measuring the uncertainty this way
+Model’s uncertainty is not calibrated.
 
 Reference
 Grave, 2011, Practical Variational Inference for Neural Network
 
 " />
-    <meta property="og:description" content="Techniques to estimate the expected log likelihood
+    <meta property="og:description" content="Central theme:
+Optimizing any deterministic NN with dropout is equivalent to 
+a form of approximate inference in a probabilistic interpretation
+of the model. This means the optimal weights found through the optimization
+of a dropout NN are the same as the optimal variational parameters
+in a Bayesian NN with the same structure.
+
+Why do we call the paramters in a Bayesian NN a variational parameter?
+
+want to find $q(w)$ that is close to the model’s posterior $p(w|X, Y)$ 
+what is $\theta$ in relation to the weight parameters to Bayesian NN?
+
+Techniques to estimate the expected log likelihood
 
 
 
@@ -116,10 +221,82 @@ estimator
 
 
 
-such that $\mathbb{E}{S, \epsilon}(\hat{L}{MC}(\theta)) = \hat{L}_{VI}(\theta)$
+such that 
 
-Therefore the SGD algorithm for minimizing $q_{\theta}(w)$ and $p(w|X, Y)$
-is
+
+  
+    
+      Therefore the SGD algorithm for minimizing  and $$p(w
+      X, Y)$$
+    
+  
+
+
+
+  Given dataset X, Y
+Define learning rate $\eta$
+Initialize parameters $\theta$ randomly
+
+
+While $\theta$ has not converged
+
+  
+    Sample $M$ random variables $\hat{\epsilon}\sim p(\epsilon)$, $S$ a random 
+subset of ${1, \dots, N}$ of size $M$
+Calculate Stochastic derivative estimator w.r.t. $\theta$:
+  
+
+
+
+
+
+  
+    Update $\theta$:
+  
+
+
+
+
+Let’s take a look at its relation with some stochastic regularization techniques.
+The most popular SRT is dropout Suppose each input feature is used with 
+probability $p$. Suppose the model has $N$ parameters, then dropout produces
+$2^N$ ‘thinned’ networks. At inference time, we want the expected prediction
+from those $2^N$ models, so we scale each weights by $p$ Hinton et al
+
+SRT injects noise on the feature space. In Bayesian NNs, the uncertainty 
+comes from model parameters. It is easy to transform noise from features
+to the model paramters. Suppose masks for features are $\epsilon_1, \epsilon_2$
+and parameters are
+$\theta = {M_1, M_2, b}$
+
+Then, the model is equivalent to stochastic paramters
+$\hat{\theta} = { diag(\epsilon_1)M_1, diag(\epsilon_2)M_2 } $
+
+Then we can write the optimization objective as
+
+
+
+with $\hat{W}^i_1$ and $\hat{W}^i_2$ corresponding to new masks $\hat{\epsilon}^i_1$
+and $\hat{\epsilon}^i_2$ sampled for data point $i$.
+
+For regression problem, minimizing MSL is equivalent to maximizing log 
+likelihood
+
+
+where $p(y| f^{M_1, M_2, b}(x)) = N(y; f^{M_1, M_2, b}(x), \tau^{-1}I) $
+
+$\hat{w} = {\hat{W}^i_1, \hat{W}^i_2, b } =: g(\theta, \hat{\epsilon}_i)$ 
+$p(\epsilon)$ is the product of Bernoulli distributions with probability
+$p_i$ (the probability the neuron is not turned off).
+
+So the loss objective is
+
+
+
+This optimization objective is same to that of approximate inference
+if in $\hat{L}_{MC}$ we choose the prior $p(w)$ in the way so that
+
+
 
 If weights are trained with probability $p$, i.e. each weight has a 
 probability $p$ to be turned on. Then, in the test time, we want
@@ -129,6 +306,15 @@ multiply each weights by $p$.
 Optimising any neural network with dropout is equivalent to a form
 of approximate inference in a probabilistic interpretation of the 
 model.
+
+Model uncertainty in Bayesian neural networks
+
+variance ratio
+predictive entropy
+information gain
+
+Some difficulties with measuring the uncertainty this way
+Model’s uncertainty is not calibrated.
 
 Reference
 Grave, 2011, Practical Variational Inference for Neural Network
@@ -213,9 +399,9 @@ Grave, 2011, Practical Variational Inference for Neural Network
     <h1 class="post-title" itemprop="name headline">Notes from Yarin Gal&#39;s Thesis</h1>
     <p class="post-meta">
 
-      <time datetime="2020-05-21T11:28:02-07:00" itemprop="datePublished">
+      <time datetime="2020-05-23T09:06:08-07:00" itemprop="datePublished">
         
-        May 21, 2020
+        May 23, 2020
       </time>
 
       <span itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -239,7 +425,19 @@ Grave, 2011, Practical Variational Inference for Neural Network
   </header>
 
   <div class="post-content" itemprop="articleBody">
-    <h2 id="techniques-to-estimate-the-expected-log-likelihood">Techniques to estimate the expected log likelihood</h2>
+    <p>Central theme:
+Optimizing any deterministic NN with dropout is equivalent to 
+a form of approximate inference in a probabilistic interpretation
+of the model. This means the optimal weights found through the optimization
+of a dropout NN are the same as the optimal variational parameters
+in a Bayesian NN with the same structure.</p>
+
+<p>Why do we call the paramters in a Bayesian NN a variational parameter?</p>
+
+<p>want to find $q(w)$ that is close to the model’s posterior $p(w|X, Y)$ 
+what is $\theta$ in relation to the weight parameters to Bayesian NN?</p>
+
+<h2 id="techniques-to-estimate-the-expected-log-likelihood">Techniques to estimate the expected log likelihood</h2>
 
 <script type="math/tex; mode=display">\int q_{\theta} \log p(y_i | f^w(x_i)) dw</script>
 
@@ -299,10 +497,89 @@ estimator</p>
 <script type="math/tex; mode=display">\hat{L}_{MC}(\theta) = -C \sum_{i \in S} \log p(y_i|f^{g(\theta,\epsilon)}(x_i)) 
 + KL(q_{\theta}(w) || p(w))</script>
 
-<p>such that $\mathbb{E}<em>{S, \epsilon}(\hat{L}</em>{MC}(\theta)) = \hat{L}_{VI}(\theta)$</p>
+<p>such that <script type="math/tex">\mathbb{E}_{S, \epsilon}(\hat{L}_{MC}(\theta)) = \hat{L}_{VI}(\theta)</script></p>
 
-<p>Therefore the SGD algorithm for minimizing $q_{\theta}(w)$ and $p(w|X, Y)$
-is</p>
+<table>
+  <tbody>
+    <tr>
+      <td>Therefore the SGD algorithm for minimizing <script type="math/tex">q_{\theta}(w)</script> and $$p(w</td>
+      <td>X, Y)$$</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>Given dataset X, Y<br />
+Define learning rate $\eta$<br />
+Initialize parameters $\theta$ randomly<br /></p>
+</blockquote>
+
+<p>While $\theta$ has not converged</p>
+<blockquote>
+  <blockquote>
+    <p>Sample $M$ random variables $\hat{\epsilon}\sim p(\epsilon)$, $S$ a random 
+subset of ${1, \dots, N}$ of size $M$<br />
+Calculate Stochastic derivative estimator w.r.t. $\theta$:</p>
+  </blockquote>
+</blockquote>
+
+<script type="math/tex; mode=display">\hat{\Delta\theta} \leftarrow -\frac{N}{M} \sum_{i\in S} 
+\frac{\partial}{\partial\theta} \log p(y_i | f^{g(\theta, \epsilon)}) 
++ \frac{\partial}{\partial\theta} KL(q_{\theta}(w) || p(w))</script>
+
+<blockquote>
+  <blockquote>
+    <p>Update $\theta$:</p>
+  </blockquote>
+</blockquote>
+
+<script type="math/tex; mode=display">\theta \leftarrow \theta + \eta \hat{\Delta\theta}</script>
+
+<p>Let’s take a look at its relation with some stochastic regularization techniques.
+The most popular SRT is <em>dropout</em> Suppose each input feature is used with 
+probability $p$. Suppose the model has $N$ parameters, then dropout produces
+$2^N$ ‘thinned’ networks. At inference time, we want the expected prediction
+from those $2^N$ models, so we scale each weights by $p$ <a href="http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf">Hinton et al</a></p>
+
+<p>SRT injects noise on the feature space. In Bayesian NNs, the uncertainty 
+comes from model parameters. It is easy to transform noise from features
+to the model paramters. Suppose masks for features are $\epsilon_1, \epsilon_2$
+and parameters are
+$\theta = {M_1, M_2, b}$</p>
+
+<p>Then, the model is equivalent to stochastic paramters
+$\hat{\theta} = { diag(\epsilon_1)M_1, diag(\epsilon_2)M_2 } $</p>
+
+<p>Then we can write the optimization objective as</p>
+
+<script type="math/tex; mode=display">\hat{L}_{dropout}(M_1, M_2, b) := 
+\frac{1}{M} \sum_{i\in S} E^{\hat{W}^i_1, \hat{W}^i_2, b}(x_i, y_i) 
+    + \lambda_1 ||M_1||^2 + \lambda_2 ||M_2||^2 + \lambda_3||b||^2</script>
+
+<p>with $\hat{W}^i_1$ and $\hat{W}^i_2$ corresponding to new masks $\hat{\epsilon}^i_1$
+and $\hat{\epsilon}^i_2$ sampled for data point $i$.</p>
+
+<p>For regression problem, minimizing MSL is equivalent to maximizing log 
+likelihood</p>
+
+<p><script type="math/tex">\log p(y|f^{M_1, M2, b}(x)) + \text{const}</script>
+where $p(y| f^{M_1, M_2, b}(x)) = N(y; f^{M_1, M_2, b}(x), \tau^{-1}I) $</p>
+
+<p>$\hat{w} = {\hat{W}^i_1, \hat{W}^i_2, b } =: g(\theta, \hat{\epsilon}_i)$ 
+$p(\epsilon)$ is the product of Bernoulli distributions with probability
+$p_i$ (the probability the neuron is not turned off).</p>
+
+<p>So the loss objective is</p>
+
+<script type="math/tex; mode=display">\hat{L}_{dropout}(M_1, M_2, b) = -\frac{1}{M_{\tau}} 
+\sum_{i \in S} \log p(y_i | f^g(x)) + \lambda_1||M_1||^2 
++ \lambda_2 ||M_2||^2 + \lambda_3||b||^2</script>
+
+<p>This optimization objective is same to that of approximate inference
+if in $\hat{L}_{MC}$ we choose the prior $p(w)$ in the way so that</p>
+
+<script type="math/tex; mode=display">KL(q_{\theta}(w) || p(w)) \propto \lambda_1||M_1||^2 + \lambda_2||M_2||^2 
++ \lambda_3||b||^2</script>
 
 <p>If weights are trained with probability $p$, i.e. each weight has a 
 probability $p$ to be turned on. Then, in the test time, we want
@@ -313,7 +590,16 @@ multiply each weights by $p$.</p>
 of approximate inference in a probabilistic interpretation of the 
 model.</p>
 
-<h2 id="reference">Reference</h2>
+<h2 id="model-uncertainty-in-bayesian-neural-networks">Model uncertainty in Bayesian neural networks</h2>
+
+<p>variance ratio
+predictive entropy
+information gain</p>
+
+<h3 id="some-difficulties-with-measuring-the-uncertainty-this-way">Some difficulties with measuring the uncertainty this way</h3>
+<p>Model’s uncertainty is not calibrated.</p>
+
+<h1 id="reference">Reference</h1>
 <p><a href="https://papers.nips.cc/paper/4329-practical-variational-inference-for-neural-networks.pdf">Grave, 2011, Practical Variational Inference for Neural Network</a></p>
 
 

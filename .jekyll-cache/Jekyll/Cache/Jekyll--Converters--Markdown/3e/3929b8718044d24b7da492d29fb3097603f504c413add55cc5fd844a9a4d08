@@ -1,4 +1,4 @@
-I"Ž<h2 id="techniques-to-estimate-the-expected-log-likelihood">Techniques to estimate the expected log likelihood</h2>
+I"<h2 id="techniques-to-estimate-the-expected-log-likelihood">Techniques to estimate the expected log likelihood</h2>
 
 <script type="math/tex; mode=display">\int q_{\theta} \log p(y_i | f^w(x_i)) dw</script>
 
@@ -58,32 +58,16 @@ estimator</p>
 <script type="math/tex; mode=display">\hat{L}_{MC}(\theta) = -C \sum_{i \in S} \log p(y_i|f^{g(\theta,\epsilon)}(x_i)) 
 + KL(q_{\theta}(w) || p(w))</script>
 
-<p>such that $\mathbb{E}<em>{S, \epsilon}(\hat{L}</em>{MC}(\theta)) = \hat{L}_{VI}(\theta)$</p>
+<p>such that <script type="math/tex">\mathbb{E}_{S, \epsilon}(\hat{L}_{MC}(\theta)) = \hat{L}_{VI}(\theta)</script></p>
 
-<p>Therefore the SGD algorithm for minimizing $q_{\theta}(w)$ and $p(w|X, Y)$
-is</p>
-
-<h1 id="algorithm-1">Algorithm 1</h1>
-<p>Just a sample algorithmn
-<script type="math/tex">\begin{algorithm}[H]
-\DontPrintSemicolon
-\SetAlgoLined
-\KwResult{Write here the result}
-\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
-\Input{Write here the input}
-\Output{Write here the output}
-\BlankLine
-\While{While condition}{
-    instructions\;
-    \eIf{condition}{
-        instructions1\;
-        instructions2\;
-    }{
-        instructions3\;
-    }
-}
-\caption{While loop with If/Else condition}
-\end{algorithm}</script></p>
+<table>
+  <tbody>
+    <tr>
+      <td>Therefore the SGD algorithm for minimizing <script type="math/tex">q_{\theta}(w)</script> and $$p(w</td>
+      <td>X, Y)$$</td>
+    </tr>
+  </tbody>
+</table>
 
 <p>If weights are trained with probability $p$, i.e. each weight has a 
 probability $p$ to be turned on. Then, in the test time, we want
