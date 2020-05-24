@@ -1,4 +1,4 @@
-I".<blockquote>
+I"�,<blockquote>
   <p>As we have seen from my <a href="https://hsl89.github.io/uncertainty-of-deep-neural-network/">previous post</a>.
 The probability vector of
 a deterministic network cannot consistently capture the uncertainty of its
@@ -66,7 +66,7 @@ hypothesis is true, what’s the odd for the observation $D$?</p>
 
 <p>One thing that relates these two schools of thought is the Bayes’ Theorem:</p>
 
-<script type="math/tex; mode=display">P(H | D) = \frac{P(D | H) P(H)}{P(D)}</script>
+\[P(H | D) = \frac{P(D | H) P(H)}{P(D)}\]
 
 <p>In Bayesian statistics, each term above has a name:</p>
 
@@ -81,7 +81,7 @@ observation $D$. One way to think about it is “the average”
 probability of seeing the observation $D$ over all hypothesis
 of data generation process:</p>
 
-<script type="math/tex; mode=display">P(D) = \int P(D | H) P(H) dH</script>
+\[P(D) = \int P(D | H) P(H) dH\]
 
 <p>If you do machine learning, then you are baptized by Bayesian
 school of thought, even if you have not heard of Bayesian statistics
@@ -90,16 +90,16 @@ until 10 mins ago. For example, when you do the following things</p>
 <figure class="highlight"><pre><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="n">nn</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="n">F</span>
 
-<span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">layer1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">layer2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">).</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">layer1</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">layer2</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></code></pre></figure>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">layer1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="p">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">layer2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></code></pre></figure>
 
 <p>you are defining $\Theta$ as the set such that each of its member looks like
 a two-layer neuron network with ReLU activation. The prior distribution 
@@ -123,7 +123,7 @@ how do we know how far it is from the true posterior?</p>
 
 <p>You can “compute” this uncertainty via Shannon entropy:</p>
 
-<script type="math/tex; mode=display">H[\theta | D] = -\int_{\Theta} p(\theta | D) \log p(\theta | D) d\theta</script>
+\[H[\theta | D] = -\int_{\Theta} p(\theta | D) \log p(\theta | D) d\theta\]
 
 <p>The uncertainty on the posterior $p(\theta | D)$ naturally carries over 
 to the uncertainty for making predictions. Let $x^*$ be a new sample
@@ -133,13 +133,13 @@ observed from the system $S$.</p>
 posterior $p(\theta | D)$, the probability of $x^*$ mapped to $y^*=c$
 under the unknown data generation process of $S$ is given by</p>
 
-<script type="math/tex; mode=display">p(y^* | x^*, D) = \int_{\Theta} p(y^* | x^*, \theta)p(\theta | D) d\theta</script>
+\[p(y^* | x^*, D) = \int_{\Theta} p(y^* | x^*, \theta)p(\theta | D) d\theta\]
 
 <p>If the output $y^*$ is a discrete random variable that takes on value
 $c_1, c_2, \cdots, c_n$, then we can again use Shannon entropy to 
 “compute” this predictive uncertainty</p>
 
-<script type="math/tex; mode=display">H[y^*|x^*, D] = - \sum_{i=1}^n p(y^*=c_i | x^*, D)\log p(y^*=c_i | x^*, D)</script>
+\[H[y^*|x^*, D] = - \sum_{i=1}^n p(y^*=c_i | x^*, D)\log p(y^*=c_i | x^*, D)\]
 
 <h2 id="information-theoretic-active-learning">Information-theoretic active learning</h2>
 <p>The goal of active learning is to selectively add data to the training 
@@ -155,9 +155,9 @@ the posterior $p(\theta | D)$ on $\Theta$. Now, we are given more data $D^{\prim
 we can say the most valuable sample $(x’, y’)$ is the one that reduces the 
 uncertainty of the posterior $p(\theta | D \cup {(x’, y’)})$ fastest, i.e.</p>
 
-<script type="math/tex; mode=display">\tag{1}
+\[\tag{1}
 \text{arg max}_{(x',y')} H[\theta | D] - \mathbb{E}_{y'\sim p(y'|x',D)}
-    (H[\theta | D'\cup {(x', y')}])</script>
+    (H[\theta | D'\cup {(x', y')}])\]
 
 <p>Of course, in practice there is no way you can evalute the above quantity,
 because it involves many intractable integrals. 
@@ -169,9 +169,9 @@ as a finite sum.</p>
 <p>In this case, the sample $(x’, y’)$ satisfies equation (1) is also the one
 that has the biggest conditional information gain:</p>
 
-<script type="math/tex; mode=display">\tag{2}
+\[\tag{2}
 I[\theta, y'|x', D] = \text{arg max}_{(x', y')} H[y'|x',D] -
-    \mathbb{E}_{\theta \sim p(\theta | D)}[H[y'|x', \theta]]</script>
+    \mathbb{E}_{\theta \sim p(\theta | D)}[H[y'|x', \theta]]\]
 
 <p>We can interpret the samples $(x’, y’)$ with maximal conditional information
 gain as the one such that the overall predictive uncertainty is high (high 

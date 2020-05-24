@@ -1,84 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-21T11:33:56-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Stream of Conscious</title><author><name>Hongshan Li</name></author><entry><title type="html">Not-So-formal Lit Review of Recent Progress in Deep Reinforcement Learning</title><link href="http://localhost:4000/DRL-lit-review/" rel="alternate" type="text/html" title="Not-So-formal Lit Review of Recent Progress in Deep Reinforcement Learning" /><published>2020-05-19T00:00:00-07:00</published><updated>2020-05-19T00:00:00-07:00</updated><id>http://localhost:4000/DRL-lit-review</id><content type="html" xml:base="http://localhost:4000/DRL-lit-review/">&lt;blockquote&gt;
-  &lt;p&gt;I want to know what’s going on in the DRL community. That’s why I am doing this lit
-review.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;!--more--&gt;
-
-&lt;h2 id=&quot;rainbow-combining-improvements-in-deep-reinforcement-learning&quot;&gt;Rainbow: Combining Improvements in Deep Reinforcement Learning&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&quot;https://arxiv.org/pdf/1710.02298.pdf&quot;&gt;paper is here&lt;/a&gt;
-This is a good entry-point, because the authors in this paper combines various 
-improvements of deep Q-learning into one coherent system. They argued that the 
-independent improvements (as extensions of DQL) are indeed complementary. 
-Here are a list of improvements they combined:&lt;/p&gt;
-
-&lt;h3 id=&quot;double-q-learning&quot;&gt;Double Q-learning&lt;/h3&gt;
-&lt;p&gt;&lt;a href=&quot;link&quot;&gt;van Hasslt 2010&lt;/a&gt; &lt;a href=&quot;https://arxiv.org/pdf/1509.06461.pdf&quot;&gt;van Hasselt, Guez, and Silver 2016&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;In this algo, the authors addresses the &lt;em&gt;overestimation&lt;/em&gt; problem when 
-updating the value function acccording to&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\tag{1}
-(R_{t+1} + \gamma_{t+1} \text{max}  q_{\bar{\theta}} 
-    (S_{t+1}, a^{\prime}) - q_{\theta}(S_t, A_t))^2&lt;/script&gt;
-
-&lt;p&gt;$\theta$ is the parameters of the &lt;em&gt;online net&lt;/em&gt;, the one that evaluates
-the states and actions. 
-Action at each time step is selected based on the estimate
-of $\theta$. $\bar{\theta}$ is the paramters of the &lt;em&gt;target net&lt;/em&gt;. It is
-the one that is periodically updated by the parameters of $\theta$. 
-Using a target net makes training more stable. The optimization algorithm
-is RMSprop.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Question: why RMSprop is a reasonable optimizer here?&lt;/em&gt;
-No clue, will investigate later.&lt;/p&gt;
-
-&lt;p&gt;What is an overestimation bias?
-It is the error that comes from taking the best action in Eq (1)&lt;/p&gt;
-
-&lt;p&gt;A theorem that estabilishes the theoretical fundation of the overestimation
-bias is the following&lt;/p&gt;
-
-&lt;p&gt;Theorem 1 in &lt;a href=&quot;https://arxiv.org/pdf/1509.06461.pdf&quot;&gt;Double Q-Learning paper&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Consider a state in which all the true optimal action values are equal
-at $Q_*(s, a) = V_*(s)$ for some $V_*(s)$. Let $Q_t$ be arbitrary value 
-estimates that are on the whole unbiased, i.e. 
-$ \sum_a (Q_t(s, a)  - V_*(s)) = 0$, that that are not all correct, such
-that $ \frac{1}{m} \sum_a (Q_t(s, a) - V_*(s))^2 = C$ for some $C &amp;gt; 0$,
-where $m &amp;gt;= 2$ is the number of actions in $s$. Under these conditions,
-&lt;script type=&quot;math/tex&quot;&gt;\text{max}_a Q_t(s, a) \ge V_*(s) + \sqrt{\frac{C}{m-1}}&lt;/script&gt;
-The lower bound is tight. Under the same condition, the lower bound on 
-the aboslute error of Double Q-Learning esitimate is 0&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;Ok, what this theorem say? It says, the traditional Q-learning incurs 
-a bias of at least $\sqrt{\frac{C}{m-1}}$, whereas the Double Q-learning
-does not incur any bias.&lt;/p&gt;
-
-&lt;p&gt;Ok, so what is Double Q-Learning and why it does not incur overestimation
-bias?&lt;/p&gt;
-
-&lt;p&gt;The target of Q-Learning is&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y^Q_t = R_{t+1} + \gamma \max_a Q(S_{t+1}, a; \theta_t)&lt;/script&gt;
-
-&lt;p&gt;which can be rewritten as&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y^Q_t = R_{t+1} + \gamma Q(S_{t+1}, \text{argmax}_a Q(S_{t+1},a;\theta_t); 
-    \theta_t)&lt;/script&gt;
-
-&lt;p&gt;The target of Double Q-Learning is&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;Y^{DoubleQ}_t = R_{t+1} + \gamma 
-Q(S_{t+1}, \text{argmax}_a Q(S_{t+1}, a; \theta_t); \theta^{\prime}_t)&lt;/script&gt;
-
-&lt;p&gt;The loss of objective is&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;(R_{t+1} + \gamma q_{\bar{\theta}}(S_{t+1}, \text{argmax}_{a^{\prime}} 
-    q_{\theta}(S_{t+1}, a^{\prime})) - q_{\theta}(S_t, A_t))^2&lt;/script&gt;
-
-&lt;p&gt;Why Double Q-learning removes overestimation bias,
-No clue, will investigate latter.&lt;/p&gt;</content><author><name>Hongshan Li</name></author><category term="Deep-learning" /><category term="Reinforcement-learning" /><summary type="html">I want to know what’s going on in the DRL community. That’s why I am doing this lit review.</summary></entry><entry><title type="html">Overview of Bayesian deep learning</title><link href="http://localhost:4000/bayesian-deep-learning/" rel="alternate" type="text/html" title="Overview of Bayesian deep learning" /><published>2020-05-14T00:00:00-07:00</published><updated>2020-05-14T00:00:00-07:00</updated><id>http://localhost:4000/bayesian-deep-learning</id><content type="html" xml:base="http://localhost:4000/bayesian-deep-learning/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-24T16:36:34-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Stream of Conscious</title><author><name>Hongshan Li</name></author><entry><title type="html">Overview of Bayesian deep learning</title><link href="http://localhost:4000/bayesian-deep-learning/" rel="alternate" type="text/html" title="Overview of Bayesian deep learning" /><published>2020-05-14T00:00:00-07:00</published><updated>2020-05-14T00:00:00-07:00</updated><id>http://localhost:4000/bayesian-deep-learning</id><content type="html" xml:base="http://localhost:4000/bayesian-deep-learning/">&lt;blockquote&gt;
   &lt;p&gt;As we have seen from my &lt;a href=&quot;https://hsl89.github.io/uncertainty-of-deep-neural-network/&quot;&gt;previous post&lt;/a&gt;.
 The probability vector of
 a deterministic network cannot consistently capture the uncertainty of its
@@ -146,7 +66,7 @@ hypothesis is true, what’s the odd for the observation $D$?&lt;/p&gt;
 
 &lt;p&gt;One thing that relates these two schools of thought is the Bayes’ Theorem:&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(H | D) = \frac{P(D | H) P(H)}{P(D)}&lt;/script&gt;
+\[P(H | D) = \frac{P(D | H) P(H)}{P(D)}\]
 
 &lt;p&gt;In Bayesian statistics, each term above has a name:&lt;/p&gt;
 
@@ -161,7 +81,7 @@ observation $D$. One way to think about it is “the average”
 probability of seeing the observation $D$ over all hypothesis
 of data generation process:&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(D) = \int P(D | H) P(H) dH&lt;/script&gt;
+\[P(D) = \int P(D | H) P(H) dH\]
 
 &lt;p&gt;If you do machine learning, then you are baptized by Bayesian
 school of thought, even if you have not heard of Bayesian statistics
@@ -170,16 +90,16 @@ until 10 mins ago. For example, when you do the following things&lt;/p&gt;
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-py&quot; data-lang=&quot;py&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;torch.nn&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;torch.nn.functional&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;F&lt;/span&gt;
 
-&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Linear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;128&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Linear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;128&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Linear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;128&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Linear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;128&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 
     &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;forward&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;F&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;relu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;F&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;relu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layer2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;you are defining $\Theta$ as the set such that each of its member looks like
 a two-layer neuron network with ReLU activation. The prior distribution 
@@ -203,7 +123,7 @@ how do we know how far it is from the true posterior?&lt;/p&gt;
 
 &lt;p&gt;You can “compute” this uncertainty via Shannon entropy:&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;H[\theta | D] = -\int_{\Theta} p(\theta | D) \log p(\theta | D) d\theta&lt;/script&gt;
+\[H[\theta | D] = -\int_{\Theta} p(\theta | D) \log p(\theta | D) d\theta\]
 
 &lt;p&gt;The uncertainty on the posterior $p(\theta | D)$ naturally carries over 
 to the uncertainty for making predictions. Let $x^*$ be a new sample
@@ -213,13 +133,13 @@ observed from the system $S$.&lt;/p&gt;
 posterior $p(\theta | D)$, the probability of $x^*$ mapped to $y^*=c$
 under the unknown data generation process of $S$ is given by&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;p(y^* | x^*, D) = \int_{\Theta} p(y^* | x^*, \theta)p(\theta | D) d\theta&lt;/script&gt;
+\[p(y^* | x^*, D) = \int_{\Theta} p(y^* | x^*, \theta)p(\theta | D) d\theta\]
 
 &lt;p&gt;If the output $y^*$ is a discrete random variable that takes on value
 $c_1, c_2, \cdots, c_n$, then we can again use Shannon entropy to 
 “compute” this predictive uncertainty&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;H[y^*|x^*, D] = - \sum_{i=1}^n p(y^*=c_i | x^*, D)\log p(y^*=c_i | x^*, D)&lt;/script&gt;
+\[H[y^*|x^*, D] = - \sum_{i=1}^n p(y^*=c_i | x^*, D)\log p(y^*=c_i | x^*, D)\]
 
 &lt;h2 id=&quot;information-theoretic-active-learning&quot;&gt;Information-theoretic active learning&lt;/h2&gt;
 &lt;p&gt;The goal of active learning is to selectively add data to the training 
@@ -235,9 +155,9 @@ the posterior $p(\theta | D)$ on $\Theta$. Now, we are given more data $D^{\prim
 we can say the most valuable sample $(x’, y’)$ is the one that reduces the 
 uncertainty of the posterior $p(\theta | D \cup {(x’, y’)})$ fastest, i.e.&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\tag{1}
+\[\tag{1}
 \text{arg max}_{(x',y')} H[\theta | D] - \mathbb{E}_{y'\sim p(y'|x',D)}
-    (H[\theta | D'\cup {(x', y')}])&lt;/script&gt;
+    (H[\theta | D'\cup {(x', y')}])\]
 
 &lt;p&gt;Of course, in practice there is no way you can evalute the above quantity,
 because it involves many intractable integrals. 
@@ -249,9 +169,9 @@ as a finite sum.&lt;/p&gt;
 &lt;p&gt;In this case, the sample $(x’, y’)$ satisfies equation (1) is also the one
 that has the biggest conditional information gain:&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\tag{2}
+\[\tag{2}
 I[\theta, y'|x', D] = \text{arg max}_{(x', y')} H[y'|x',D] -
-    \mathbb{E}_{\theta \sim p(\theta | D)}[H[y'|x', \theta]]&lt;/script&gt;
+    \mathbb{E}_{\theta \sim p(\theta | D)}[H[y'|x', \theta]]\]
 
 &lt;p&gt;We can interpret the samples $(x’, y’)$ with maximal conditional information
 gain as the one such that the overall predictive uncertainty is high (high 
@@ -279,7 +199,7 @@ $(x_0,…,x_n)$ and a positive integer $m$, how many non-negative integer tuples
 $(v_0,…,v_n)$ are there so that&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\sum v_i x_i = m&lt;/script&gt;
+\[\sum v_i x_i = m\]
 
 &lt;!--more--&gt;
 
@@ -287,22 +207,22 @@ $(v_0,…,v_n)$ are there so that&lt;/p&gt;
 let $n=0$, then $P(x_0, m) = 0, 1$, depending on if $m$ is a multiple of $x_0$. 
 In the next simplest case, let $n=1$, then&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(x_0, x_1, m) = \sum\limits_{i=0}^{k_1}  p(x_0, m - ix_1)&lt;/script&gt;
+\[P(x_0, x_1, m) = \sum\limits_{i=0}^{k_1}  p(x_0, m - ix_1)\]
 
 &lt;p&gt;where $k_1 \in \mathbb{Z}$ such that $m - k_1x_1 &amp;gt;= 0$ and $m - (k_1 +1)x_1 &amp;lt; 0$.&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(x_0,...,x_n, m) = \sum\limits_{i=0}^{k_n} P(x_0,...,x_{n-1}, m - i\times x_n)&lt;/script&gt;
+\[P(x_0,...,x_n, m) = \sum\limits_{i=0}^{k_n} P(x_0,...,x_{n-1}, m - i\times x_n)\]
 
 &lt;p&gt;This probably reminds you of dynamic programming, in which we bootstrap the solution
 from solutions of subproblems.&lt;/p&gt;
 
 &lt;p&gt;In this case we will build a 2d dp table such that&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;dp[i][j] = P(x_0,...,x_{i-1}, j)&lt;/script&gt;
+\[dp[i][j] = P(x_0,...,x_{i-1}, j)\]
 
 &lt;p&gt;The update rule for this dp table is precisely eq 1.&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;dp[i][j] = \sum\limits_{s=0}^{s_{i-1}}dp[i-1][j-sx_{i-1}]&lt;/script&gt;
+\[dp[i][j] = \sum\limits_{s=0}^{s_{i-1}}dp[i-1][j-sx_{i-1}]\]
 
 &lt;p&gt;Let’s put it into python&lt;/p&gt;
 
@@ -336,11 +256,11 @@ from solutions of subproblems.&lt;/p&gt;
 &lt;p&gt;For all dynamic programming question, one should be able to write down a functional 
 equation as the bootstraping rule. In the above solution, our functional equation is&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;P(x_0,...x_n,  m) = \sum\limits_{i=0}^{k_n}  p(x_0,...,x_{n-1},  m - ix_n)&lt;/script&gt;
+\[P(x_0,...x_n,  m) = \sum\limits_{i=0}^{k_n}  p(x_0,...,x_{n-1},  m - ix_n)\]
 
 &lt;p&gt;But&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\sum\limits_{i=1}^{k_n} p(x_0,...,x_{n-1}, m - ix_n) = p(x_0,...,x_n, m - x_n)&lt;/script&gt;
+\[\sum\limits_{i=1}^{k_n} p(x_0,...,x_{n-1}, m - ix_n) = p(x_0,...,x_n, m - x_n)\]
 
 &lt;p&gt;In our dp table, when computing $dp[i][j] = p(x_0,…,x_{i-1}, j)$ 
 we have in fact computed $dp[i][j-x_{i-1}] = p(x_0,…,x_{i-1}, j - x_{i-1})$. 
@@ -348,7 +268,7 @@ Instead of using it, we choose to only to use info from $dp[i-1][:]$, that is wh
 inefficiency comes in.&lt;/p&gt;
 
 &lt;p&gt;To recap, we update the dp table by
-&lt;script type=&quot;math/tex&quot;&gt;dp[i][j] = dp[i][j-coins[i-1]] + dp[i-1][j]&lt;/script&gt;&lt;/p&gt;
+\(dp[i][j] = dp[i][j-coins[i-1]] + dp[i-1][j]\)&lt;/p&gt;
 
 &lt;p&gt;Here is how to fix it&lt;/p&gt;
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;def num_tuples(nums: List, m:int) -&amp;gt; int:
@@ -374,7 +294,7 @@ inefficiency comes in.&lt;/p&gt;
                 dp[i][j] += dp[i][j - coins[i-1]]
 
     return dp[n][m]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>Hongshan Li</name></author><category term="Algorithms" /><summary type="html">Given a list of positive integers $(x_0,…,x_n)$ and a positive integer $m$, how many non-negative integer tuples $(v_0,…,v_n)$ are there so that</summary></entry><entry><title type="html">Uncertainty of Deep Neural Network</title><link href="http://localhost:4000/uncertainty-of-deep-neural-network/" rel="alternate" type="text/html" title="Uncertainty of Deep Neural Network" /><published>2020-04-08T00:00:00-07:00</published><updated>2020-04-08T00:00:00-07:00</updated><id>http://localhost:4000/uncertainty-of-deep-neural-network</id><content type="html" xml:base="http://localhost:4000/uncertainty-of-deep-neural-network/">&lt;blockquote&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>Hongshan Li</name></author><category term="Algorithms" /><summary type="html">Given a list of positive integers $(x_0,…,x_n)$ and a positive integer $m$, how many non-negative integer tuples $(v_0,…,v_n)$ are there so that \[\sum v_i x_i = m\]</summary></entry><entry><title type="html">Uncertainty of Deep Neural Network</title><link href="http://localhost:4000/uncertainty-of-deep-neural-network/" rel="alternate" type="text/html" title="Uncertainty of Deep Neural Network" /><published>2020-04-08T00:00:00-07:00</published><updated>2020-04-08T00:00:00-07:00</updated><id>http://localhost:4000/uncertainty-of-deep-neural-network</id><content type="html" xml:base="http://localhost:4000/uncertainty-of-deep-neural-network/">&lt;blockquote&gt;
   &lt;p&gt;A homo sapien learns its environment by investigating objects that it is uncertain
 about. More successful homo sapiens are generally those who push themselves
 outside their comfort zone and navigate through unfamiliar circumstances. 
@@ -446,7 +366,7 @@ used metric to characterize the uncertainty of $f$ on the unseen sample $x$.&lt;
 &lt;h4 id=&quot;confidence-level&quot;&gt;Confidence level&lt;/h4&gt;
 &lt;p&gt;Confidence level measures how confident the prediction $f(x)$ is, it is defined as&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\text{max}(\{p(y=c|x, f) | c \in \mathcal{C}\}&lt;/script&gt;
+\[\text{max}(\{p(y=c|x, f) | c \in \mathcal{C}\}\]
 
 &lt;p&gt;i.e. the highest class probability.&lt;/p&gt;
 
@@ -454,13 +374,13 @@ used metric to characterize the uncertainty of $f$ on the unseen sample $x$.&lt;
 &lt;p&gt;Margin measures how certain the model thinks the sample $x$ belongs to one class vs the rest.
 It is defined as&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\text{max}(\{p(y=c|x,f) - p(y=c^{\prime}|x, f) | c, c^{\prime} \in C\})&lt;/script&gt;
+\[\text{max}(\{p(y=c|x,f) - p(y=c^{\prime}|x, f) | c, c^{\prime} \in C\})\]
 
 &lt;h4 id=&quot;entropy&quot;&gt;Entropy&lt;/h4&gt;
 &lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Entropy_(information_theory)&quot;&gt;Entropy&lt;/a&gt; of the prediction $f(x)$
 is calculated as&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;H(f(x)) = \sum_{c\in \mathcal{C}} -p(y=c|x, f)\log (p(y=c|x, f))&lt;/script&gt;
+\[H(f(x)) = \sum_{c\in \mathcal{C}} -p(y=c|x, f)\log (p(y=c|x, f))\]
 
 &lt;p&gt;The term $-\log p(y=c|x, f) = \log \frac{1}{p(y=c|x,f)}$ is called 
 the &lt;em&gt;surprisal&lt;/em&gt; of the event $p(y=c|x, f)$. 
@@ -492,13 +412,12 @@ input by a small noise.&lt;/li&gt;
 
 &lt;p&gt;To investigate this problem, I generated 4 clusters of 2d data from the following Gaussians&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
-\begin{align*}
-\mu = (0.5, 0.5), &amp; \sigma = (0.25, 0.25) \\
-\mu = (0.5, -0.5), &amp; \sigma = (0.25, 0.25) \\
-\mu = (-0.5, 0.5), &amp; \sigma = (0.25, 0.25) \\
-\mu = (-0.5, -0.5), &amp; \sigma = (0.25, 0.25) 
-\end{align*} %]]&gt;&lt;/script&gt;
+\[\begin{align*}
+\mu = (0.5, 0.5), &amp;amp; \sigma = (0.25, 0.25) \\
+\mu = (0.5, -0.5), &amp;amp; \sigma = (0.25, 0.25) \\
+\mu = (-0.5, 0.5), &amp;amp; \sigma = (0.25, 0.25) \\
+\mu = (-0.5, -0.5), &amp;amp; \sigma = (0.25, 0.25) 
+\end{align*}\]
 
 &lt;p&gt;The data looks like&lt;/p&gt;
 

@@ -1,0 +1,40 @@
+I"
+<hr />
+<p>layout: post
+comments: true
+title: Maximum Likelihood Estimate
+date: 2020-05-23
+tags: Statistics
+—</p>
+
+<blockquote>
+  <p>I want to review MLE.</p>
+</blockquote>
+
+<p>MLE: \(\hat{\mu} = \text{arg max}_{\mu \in \Gamma} \{I_x(\mu)\}\)</p>
+
+<p>Can be extened to provide maximum likelihood estimate for a function
+\(\hat{\theta} = T(\hat{\mu})\)</p>
+
+\[I_x(\theta) = \log f_{\theta}(x)\]
+
+<p>\(\hat{\theta}\) is always the MLE of $\theta$</p>
+
+<p>Fisher information is the variance of $\dot{l}_x(\theta)$</p>
+
+<p>Note $\dot{l}_x(\theta)$ is a family of functions parameterized
+by $\theta$.</p>
+
+\[\italic{I}_{\theta} = \int_X \dot{l}_x(theta)^2 f_{\theta}(x) dx\]
+
+<p>The reason to consider such derivative is that at $\hat{\theta}$
+$\italic{I}_{\theta}$ should be 0.</p>
+
+<p>Fisher’s fundamental theomre for the MLE, in large samples</p>
+
+\[\hat{\theta} \dot{\sim} \mathcal{N}(\theta, \frac{1}{n\italic{I}_{\theta}}\]
+
+<p>what does it even mean? $\theta$ is the parameters that varies in the 
+familiy $\Omega$, why put it as mean?</p>
+
+:ET

@@ -153,9 +153,9 @@ Here are a list of improvements they combined:</p>
 <p>In this algo, the authors addresses the <em>overestimation</em> problem when 
 updating the value function acccording to</p>
 
-<script type="math/tex; mode=display">\tag{1}
+\[\tag{1}
 (R_{t+1} + \gamma_{t+1} \text{max}  q_{\bar{\theta}} 
-    (S_{t+1}, a^{\prime}) - q_{\theta}(S_t, A_t))^2</script>
+    (S_{t+1}, a^{\prime}) - q_{\theta}(S_t, A_t))^2\]
 
 <p>$\theta$ is the parameters of the <em>online net</em>, the one that evaluates
 the states and actions. 
@@ -182,7 +182,7 @@ estimates that are on the whole unbiased, i.e.
 $ \sum_a (Q_t(s, a)  - V_*(s)) = 0$, that that are not all correct, such
 that $ \frac{1}{m} \sum_a (Q_t(s, a) - V_*(s))^2 = C$ for some $C &gt; 0$,
 where $m &gt;= 2$ is the number of actions in $s$. Under these conditions,
-<script type="math/tex">\text{max}_a Q_t(s, a) \ge V_*(s) + \sqrt{\frac{C}{m-1}}</script>
+\(\text{max}_a Q_t(s, a) \ge V_*(s) + \sqrt{\frac{C}{m-1}}\)
 The lower bound is tight. Under the same condition, the lower bound on 
 the aboslute error of Double Q-Learning esitimate is 0</em></p>
 
@@ -195,22 +195,22 @@ bias?</p>
 
 <p>The target of Q-Learning is</p>
 
-<script type="math/tex; mode=display">Y^Q_t = R_{t+1} + \gamma \max_a Q(S_{t+1}, a; \theta_t)</script>
+\[Y^Q_t = R_{t+1} + \gamma \max_a Q(S_{t+1}, a; \theta_t)\]
 
 <p>which can be rewritten as</p>
 
-<script type="math/tex; mode=display">Y^Q_t = R_{t+1} + \gamma Q(S_{t+1}, \text{argmax}_a Q(S_{t+1},a;\theta_t); 
-    \theta_t)</script>
+\[Y^Q_t = R_{t+1} + \gamma Q(S_{t+1}, \text{argmax}_a Q(S_{t+1},a;\theta_t); 
+    \theta_t)\]
 
 <p>The target of Double Q-Learning is</p>
 
-<script type="math/tex; mode=display">Y^{DoubleQ}_t = R_{t+1} + \gamma 
-Q(S_{t+1}, \text{argmax}_a Q(S_{t+1}, a; \theta_t); \theta^{\prime}_t)</script>
+\[Y^{DoubleQ}_t = R_{t+1} + \gamma 
+Q(S_{t+1}, \text{argmax}_a Q(S_{t+1}, a; \theta_t); \theta^{\prime}_t)\]
 
 <p>The loss of objective is</p>
 
-<script type="math/tex; mode=display">(R_{t+1} + \gamma q_{\bar{\theta}}(S_{t+1}, \text{argmax}_{a^{\prime}} 
-    q_{\theta}(S_{t+1}, a^{\prime})) - q_{\theta}(S_t, A_t))^2</script>
+\[(R_{t+1} + \gamma q_{\bar{\theta}}(S_{t+1}, \text{argmax}_{a^{\prime}} 
+    q_{\theta}(S_{t+1}, a^{\prime})) - q_{\theta}(S_t, A_t))^2\]
 
 <p>Why Double Q-learning removes overestimation bias,
 No clue, will investigate latter.</p>
@@ -224,6 +224,8 @@ No clue, will investigate latter.</p>
       <a class="prev" href="/bayesian-deep-learning/">&larr; Overview of Bayesian deep learning</a>
     
 
+    
+      <a class="next" href="/maximum-likelihood/">Maximum Likelihood &rarr;</a>
     
   </div>
 

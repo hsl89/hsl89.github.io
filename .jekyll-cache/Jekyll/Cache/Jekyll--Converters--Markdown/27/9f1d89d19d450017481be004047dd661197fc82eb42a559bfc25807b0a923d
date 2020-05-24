@@ -1,9 +1,9 @@
-I"ü<blockquote>
+I"Ñ<blockquote>
   <p>Given a list of positive integers 
 $(x_0,â€¦,x_n)$ and a positive integer $m$, how many non-negative integer tuples
 $(v_0,â€¦,v_n)$ are there so that</p>
 </blockquote>
 
-<script type="math/tex; mode=display">\sum v_i x_i = m</script>
+\[\sum v_i x_i = m\]
 
 :ET

@@ -215,7 +215,7 @@ used metric to characterize the uncertainty of $f$ on the unseen sample $x$.</p>
 <h4 id="confidence-level">Confidence level</h4>
 <p>Confidence level measures how confident the prediction $f(x)$ is, it is defined as</p>
 
-<script type="math/tex; mode=display">\text{max}(\{p(y=c|x, f) | c \in \mathcal{C}\}</script>
+\[\text{max}(\{p(y=c|x, f) | c \in \mathcal{C}\}\]
 
 <p>i.e. the highest class probability.</p>
 
@@ -223,13 +223,13 @@ used metric to characterize the uncertainty of $f$ on the unseen sample $x$.</p>
 <p>Margin measures how certain the model thinks the sample $x$ belongs to one class vs the rest.
 It is defined as</p>
 
-<script type="math/tex; mode=display">\text{max}(\{p(y=c|x,f) - p(y=c^{\prime}|x, f) | c, c^{\prime} \in C\})</script>
+\[\text{max}(\{p(y=c|x,f) - p(y=c^{\prime}|x, f) | c, c^{\prime} \in C\})\]
 
 <h4 id="entropy">Entropy</h4>
 <p><a href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">Entropy</a> of the prediction $f(x)$
 is calculated as</p>
 
-<script type="math/tex; mode=display">H(f(x)) = \sum_{c\in \mathcal{C}} -p(y=c|x, f)\log (p(y=c|x, f))</script>
+\[H(f(x)) = \sum_{c\in \mathcal{C}} -p(y=c|x, f)\log (p(y=c|x, f))\]
 
 <p>The term $-\log p(y=c|x, f) = \log \frac{1}{p(y=c|x,f)}$ is called 
 the <em>surprisal</em> of the event $p(y=c|x, f)$. 
@@ -261,13 +261,12 @@ input by a small noise.</li>
 
 <p>To investigate this problem, I generated 4 clusters of 2d data from the following Gaussians</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align*}
-\mu = (0.5, 0.5), & \sigma = (0.25, 0.25) \\
-\mu = (0.5, -0.5), & \sigma = (0.25, 0.25) \\
-\mu = (-0.5, 0.5), & \sigma = (0.25, 0.25) \\
-\mu = (-0.5, -0.5), & \sigma = (0.25, 0.25) 
-\end{align*} %]]></script>
+\[\begin{align*}
+\mu = (0.5, 0.5), &amp; \sigma = (0.25, 0.25) \\
+\mu = (0.5, -0.5), &amp; \sigma = (0.25, 0.25) \\
+\mu = (-0.5, 0.5), &amp; \sigma = (0.25, 0.25) \\
+\mu = (-0.5, -0.5), &amp; \sigma = (0.25, 0.25) 
+\end{align*}\]
 
 <p>The data looks like</p>
 
